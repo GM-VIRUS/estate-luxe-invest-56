@@ -1,5 +1,6 @@
 
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import PropertyGrid from "./PropertyGrid";
@@ -35,15 +36,17 @@ const FeaturedProperties = () => {
             Discover our handpicked selection of high-yield properties with strong growth potential and proven returns.
           </p>
           
-          <Button
-            variant="outline"
-            className={`rounded-full transition-all duration-700 delay-300 ${
-              isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-            }`}
-          >
-            View All Properties
-            <ArrowRight className="ml-2 h-4 w-4" />
-          </Button>
+          <Link to="/properties">
+            <Button
+              variant="outline"
+              className={`rounded-full transition-all duration-700 delay-300 ${
+                isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+              }`}
+            >
+              View All Properties
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+          </Link>
         </div>
 
         <PropertyGrid properties={featuredProperties} />
