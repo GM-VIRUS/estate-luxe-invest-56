@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, LogIn } from "lucide-react";
+import { Menu, X, LogIn, User } from "lucide-react";
 import ThemeToggle from "./ThemeToggle";
 import { Button } from "@/components/ui/button";
 
@@ -74,10 +74,18 @@ const Navbar = () => {
           </ul>
           <div className="flex items-center gap-4">
             <ThemeToggle />
-            <Button size="sm" className="rounded-full bg-accent text-white hover:bg-accent/90 transition-all">
-              <LogIn className="h-4 w-4 mr-2" />
-              Connect Wallet
-            </Button>
+            <Link to="/login">
+              <Button variant="outline" size="sm" className="rounded-full transition-all">
+                <LogIn className="h-4 w-4 mr-2" />
+                Log In
+              </Button>
+            </Link>
+            <Link to="/signup">
+              <Button size="sm" className="rounded-full bg-accent text-white hover:bg-accent/90 transition-all">
+                <User className="h-4 w-4 mr-2" />
+                Sign Up
+              </Button>
+            </Link>
           </div>
         </div>
 
@@ -111,11 +119,19 @@ const Navbar = () => {
                 </Link>
               </li>
             ))}
-            <li>
-              <Button size="lg" className="mt-4 rounded-full px-8 bg-accent text-white hover:bg-accent/90 transition-all">
-                <LogIn className="h-4 w-4 mr-2" />
-                Connect Wallet
-              </Button>
+            <li className="flex flex-col gap-4 pt-4">
+              <Link to="/login">
+                <Button variant="outline" className="w-full">
+                  <LogIn className="h-4 w-4 mr-2" />
+                  Log In
+                </Button>
+              </Link>
+              <Link to="/signup">
+                <Button className="w-full bg-accent hover:bg-accent/90">
+                  <User className="h-4 w-4 mr-2" />
+                  Sign Up
+                </Button>
+              </Link>
             </li>
           </ul>
         </div>
