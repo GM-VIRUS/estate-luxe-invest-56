@@ -3,23 +3,14 @@ import { useState } from "react";
 import { Search, MapPin, DollarSign, Building } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-interface SearchBarProps {
-  onSearch?: (query: string) => void;
-}
-
-const SearchBar = ({ onSearch }: SearchBarProps) => {
+const SearchBar = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [priceRange, setPriceRange] = useState("Any");
   const [propertyType, setPropertyType] = useState("All");
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Call the onSearch prop if provided
-    if (onSearch) {
-      onSearch(searchTerm);
-    }
-    
-    // Log for debugging
+    // Handle search submit
     console.log({
       searchTerm,
       priceRange,
