@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, LogIn, User, MessageSquare, HelpCircle } from "lucide-react";
+import { Menu, X, LogIn, User } from "lucide-react";
 import ThemeToggle from "./ThemeToggle";
 import { Button } from "@/components/ui/button";
 
@@ -33,8 +33,6 @@ const Navbar = () => {
     { name: "Home", path: "/" },
     { name: "Properties", path: "/properties" },
     { name: "How It Works", path: "/how-it-works" },
-    { name: "FAQ", path: "/faq" },
-    { name: "Support", path: "/support" },
     { name: "About", path: "/about" }
   ];
 
