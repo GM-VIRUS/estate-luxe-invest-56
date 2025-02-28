@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff, LogIn, Mail, Lock, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
@@ -18,6 +18,17 @@ const Login = () => {
   const [showWalletModal, setShowWalletModal] = useState(false);
   const [showForgotPasswordModal, setShowForgotPasswordModal] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [shakingFields, setShakingFields] = useState<string[]>([]);
+
+  // Check localStorage for registered users on component mount
+  const [registeredEmails, setRegisteredEmails] = useState<string[]>(["user@example.com"]);
+  
+  useEffect(() => {
+    const registeredEmail = localStorage.getItem("userRegistered");
+    if (registeredEmail && !registeredEmails.includes(registeredEmail)) {
+      setRegisteredEmails(prev => [...prev, registeredEmail]);
+    }
+  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,6 +36,8 @@ const Login = () => {
     // Basic validation
     if (!email || !password) {
       toast.error("Please fill in all fields");
+      setShakingFields(["email", "password"].filter(field => !eval(field)));
+      setTimeout(() => setShakingFields([]), 500);
       return;
     }
     
@@ -32,30 +45,37 @@ const Login = () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       toast.error("Please enter a valid email address");
+      setShakingFields(["email"]);
+      setTimeout(() => setShakingFields([]), 500);
       return;
     }
 
     setLoading(true);
     
-    // Simulate API call
-    setTimeout(() => {
-      // This is where you would check the credentials against your database
-      // For now, just simulate a successful login or an error
-      const mockRegisteredEmail = "user@example.com";
-      
-      if (email !== mockRegisteredEmail) {
+    // Check if email is registered
+    if (!registeredEmails.includes(email)) {
+      setTimeout(() => {
         toast.error("Email not registered. Please sign up first.");
+        setShakingFields(["email"]);
+        setTimeout(() => setShakingFields([]), 500);
         setLoading(false);
-        return;
-      }
-      
-      if (password !== "Password123!") {
+      }, 1000);
+      return;
+    }
+    
+    // Check password (normally this would be done on the server)
+    if (password !== "Password123!") {
+      setTimeout(() => {
         toast.error("Invalid credentials. Please try again.");
+        setShakingFields(["password"]);
+        setTimeout(() => setShakingFields([]), 500);
         setLoading(false);
-        return;
-      }
-      
-      // If login is successful, show wallet connect modal
+      }, 1000);
+      return;
+    }
+    
+    // If login is successful, show wallet connect modal for authentication
+    setTimeout(() => {
       setShowWalletModal(true);
       setLoading(false);
     }, 1000);
@@ -101,7 +121,9 @@ const Login = () => {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="pl-10 w-full h-11 rounded-md border bg-transparent px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    className={`pl-10 w-full h-11 rounded-md border bg-transparent px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${
+                      shakingFields.includes("email") ? "animate-[shake_0.5s_ease-in-out]" : ""
+                    }`}
                     placeholder="Enter your email"
                     required
                   />
@@ -130,7 +152,9 @@ const Login = () => {
                     type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="pl-10 w-full h-11 rounded-md border bg-transparent px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    className={`pl-10 w-full h-11 rounded-md border bg-transparent px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${
+                      shakingFields.includes("password") ? "animate-[shake_0.5s_ease-in-out]" : ""
+                    }`}
                     placeholder="Enter your password"
                     required
                   />
