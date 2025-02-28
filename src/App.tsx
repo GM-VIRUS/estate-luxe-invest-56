@@ -1,37 +1,34 @@
 
-import { useState } from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
-import { Toaster as SonnerToaster } from "sonner";
-import Login from "@/pages/Login";
-import Signup from "@/pages/Signup";
-import Index from "@/pages/Index";
-import PropertyDetails from "@/pages/PropertyDetails";
-import NotFound from "@/pages/NotFound";
+import { Toaster as Sonner } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Index from "./pages/Index";
+import PropertyDetails from "./pages/PropertyDetails";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
+import NotFound from "./pages/NotFound";
 
-function App() {
-  // Temporarily bypass login - always consider the user as authenticated
-  const [isAuthenticated] = useState(true);
-  
-  return (
-    <Router>
-      <Routes>
-        <Route
-          path="/login"
-          element={isAuthenticated ? <Navigate to="/" /> : <Login />}
-        />
-        <Route
-          path="/signup"
-          element={isAuthenticated ? <Navigate to="/" /> : <Signup />}
-        />
-        <Route path="/" element={<Index />} />
-        <Route path="/properties/:id" element={<PropertyDetails />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-      <SonnerToaster position="top-right" />
+const queryClient = new QueryClient();
+
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <TooltipProvider>
       <Toaster />
-    </Router>
-  );
-}
+      <Sonner />
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/property/:id" element={<PropertyDetails />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </BrowserRouter>
+    </TooltipProvider>
+  </QueryClientProvider>
+);
 
 export default App;
