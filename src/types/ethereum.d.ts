@@ -9,3 +9,8 @@ interface Window {
     chainId: string | undefined;
   };
 }
+
+// Extend the Web3 namespace for TypeScript 
+declare namespace Web3 {
+  const givenProvider: any;
+}

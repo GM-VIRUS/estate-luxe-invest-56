@@ -54,7 +54,9 @@ const WalletConnectModal = ({ isOpen, onClose, onConnect }: WalletConnectModalPr
         throw new Error("No accounts found or user rejected the request");
       }
       
-      const web3 = new Web3(window.ethereum);
+      // Create a new Web3 instance with the provider
+      // Instead of passing window.ethereum directly, use HTTP provider that Web3 can understand
+      const web3 = new Web3(Web3.givenProvider || "http://localhost:8545");
       const address = accounts[0];
       setWalletAddress(address);
       
