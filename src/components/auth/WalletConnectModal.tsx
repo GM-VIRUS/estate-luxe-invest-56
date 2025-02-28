@@ -1,8 +1,10 @@
 
 import { useState, useEffect } from "react";
-import { Check, Loader2, Wallet, X, Mail } from "lucide-react";
+import { Check, Loader2, Wallet, X, Mail, AlertTriangle } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import Web3 from "web3";
+import { toast } from "sonner";
 
 interface WalletConnectModalProps {
   isOpen: boolean;
@@ -10,12 +12,14 @@ interface WalletConnectModalProps {
   onConnect: () => void;
 }
 
-export type ModalView = "walletConnect" | "emailVerification" | "success";
+export type ModalView = "walletConnect" | "emailVerification" | "success" | "error";
 
 const WalletConnectModal = ({ isOpen, onClose, onConnect }: WalletConnectModalProps) => {
   const [connecting, setConnecting] = useState(false);
   const [connected, setConnected] = useState(false);
   const [currentView, setCurrentView] = useState<ModalView>("walletConnect");
+  const [errorMessage, setErrorMessage] = useState<string>("");
+  const [walletAddress, setWalletAddress] = useState<string>("");
   
   useEffect(() => {
     // Reset state when modal opens
@@ -23,14 +27,45 @@ const WalletConnectModal = ({ isOpen, onClose, onConnect }: WalletConnectModalPr
       setConnecting(false);
       setConnected(false);
       setCurrentView("walletConnect");
+      setErrorMessage("");
+      setWalletAddress("");
     }
   }, [isOpen]);
   
+  const checkIfMetaMaskInstalled = () => {
+    return typeof window !== 'undefined' && typeof window.ethereum !== 'undefined';
+  };
+
   const handleConnectWallet = async () => {
     setConnecting(true);
     
-    // Simulate wallet connection
-    setTimeout(() => {
+    try {
+      if (!checkIfMetaMaskInstalled()) {
+        setErrorMessage("MetaMask is not installed. Please install MetaMask extension first.");
+        setCurrentView("error");
+        setConnecting(false);
+        return;
+      }
+
+      // Request account access
+      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+      
+      if (accounts.length === 0) {
+        throw new Error("No accounts found or user rejected the request");
+      }
+      
+      const web3 = new Web3(window.ethereum);
+      const address = accounts[0];
+      setWalletAddress(address);
+      
+      // Sign a message to verify ownership (optional but recommended)
+      const message = `Login to EstateToken with wallet: ${address}`;
+      const signature = await web3.eth.personal.sign(message, address, "");
+      
+      // At this point, we have verified the user's wallet
+      console.log("Wallet connected:", address);
+      console.log("Signature:", signature);
+      
       setConnecting(false);
       setConnected(true);
       
@@ -38,7 +73,13 @@ const WalletConnectModal = ({ isOpen, onClose, onConnect }: WalletConnectModalPr
       setTimeout(() => {
         setCurrentView("emailVerification");
       }, 1500);
-    }, 2000);
+      
+    } catch (error) {
+      console.error("Error connecting wallet:", error);
+      setErrorMessage(error instanceof Error ? error.message : "Failed to connect wallet");
+      setCurrentView("error");
+      setConnecting(false);
+    }
   };
 
   const handleEmailVerified = () => {
@@ -48,6 +89,11 @@ const WalletConnectModal = ({ isOpen, onClose, onConnect }: WalletConnectModalPr
     setTimeout(() => {
       onConnect();
     }, 2000);
+  };
+
+  const handleTryAgain = () => {
+    setCurrentView("walletConnect");
+    setErrorMessage("");
   };
 
   const renderContent = () => {
@@ -63,7 +109,7 @@ const WalletConnectModal = ({ isOpen, onClose, onConnect }: WalletConnectModalPr
                 <div className="text-center space-y-2">
                   <h3 className="font-medium text-lg">Wallet Connection Required</h3>
                   <p className="text-sm text-muted-foreground max-w-xs">
-                    Connect your wallet to complete the authentication process and access your account.
+                    Connect your MetaMask wallet to complete the authentication process and access your account.
                   </p>
                 </div>
                 <div className="flex flex-col space-y-3 w-full">
@@ -80,20 +126,9 @@ const WalletConnectModal = ({ isOpen, onClose, onConnect }: WalletConnectModalPr
                       <>Connect MetaMask</>
                     )}
                   </Button>
-                  <Button
-                    onClick={handleConnectWallet}
-                    variant="outline"
-                    className="w-full h-11"
-                    disabled={connecting}
-                  >
-                    {connecting ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Connecting...
-                      </>
-                    ) : (
-                      <>WalletConnect</>
-                    )}
-                  </Button>
+                </div>
+                <div className="text-center text-sm text-muted-foreground mt-2">
+                  <p>Make sure you have the MetaMask extension installed</p>
                 </div>
               </>
             ) : (
@@ -105,6 +140,9 @@ const WalletConnectModal = ({ isOpen, onClose, onConnect }: WalletConnectModalPr
                   <h3 className="font-medium text-lg">Wallet Connected!</h3>
                   <p className="text-sm text-muted-foreground">
                     Your wallet has been successfully connected.
+                  </p>
+                  <p className="mt-2 text-xs font-mono bg-background p-2 rounded border">
+                    {walletAddress.slice(0, 6)}...{walletAddress.slice(-4)}
                   </p>
                 </div>
               </div>
@@ -154,6 +192,35 @@ const WalletConnectModal = ({ isOpen, onClose, onConnect }: WalletConnectModalPr
             </div>
           </div>
         );
+      case "error":
+        return (
+          <div className="flex flex-col items-center justify-center space-y-4 animate-fade-in">
+            <div className="p-6 rounded-full bg-destructive/10 text-destructive">
+              <AlertTriangle className="h-10 w-10" />
+            </div>
+            <div className="text-center">
+              <h3 className="font-medium text-lg">Connection Error</h3>
+              <p className="text-sm text-muted-foreground max-w-xs">
+                {errorMessage || "There was an error connecting to your wallet. Please try again."}
+              </p>
+            </div>
+            <div className="w-full space-y-3 pt-2">
+              <Button 
+                onClick={handleTryAgain} 
+                className="w-full bg-accent hover:bg-accent/90"
+              >
+                Try Again
+              </Button>
+              <Button 
+                variant="outline" 
+                className="w-full" 
+                onClick={onClose}
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        );
       default:
         return null;
     }
@@ -166,6 +233,7 @@ const WalletConnectModal = ({ isOpen, onClose, onConnect }: WalletConnectModalPr
           <DialogTitle className="text-center text-xl font-semibold">
             {currentView === "walletConnect" ? "Connect Your Wallet" : 
              currentView === "emailVerification" ? "Email Verification" : 
+             currentView === "error" ? "Connection Error" :
              "Account Created"}
           </DialogTitle>
           <button

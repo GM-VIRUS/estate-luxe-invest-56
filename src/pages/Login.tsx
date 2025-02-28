@@ -1,7 +1,7 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Eye, EyeOff, LogIn, Mail, Lock, ArrowRight } from "lucide-react";
+import { Eye, EyeOff, LogIn, Mail, Lock, ArrowRight, Wallet } from "lucide-react";
 import { toast } from "sonner";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -26,11 +26,7 @@ const Login = () => {
     
     // Simple timeout to simulate processing
     setTimeout(() => {
-      toast.success("Login successful!");
-      
-      // Redirect to homepage
-      navigate("/");
-      
+      setShowWalletModal(true);
       setLoading(false);
     }, 1000);
   };
@@ -132,6 +128,15 @@ const Login = () => {
                     Login <LogIn className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform duration-200" />
                   </>
                 )}
+              </Button>
+
+              <Button 
+                type="button"
+                onClick={() => setShowWalletModal(true)}
+                variant="outline" 
+                className="w-full transition-all rounded-md h-11 group mt-2"
+              >
+                <Wallet className="mr-2 h-4 w-4" /> Login with MetaMask
               </Button>
             </form>
             
