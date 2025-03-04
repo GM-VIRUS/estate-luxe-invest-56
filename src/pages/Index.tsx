@@ -9,7 +9,6 @@ import HeroSection from "../components/HeroSection";
 import PropertyGrid from "../components/PropertyGrid";
 import FeaturedProperties from "../components/FeaturedProperties";
 import HowItWorks from "../components/HowItWorks";
-import Stats from "../components/Stats";
 import Footer from "../components/Footer";
 
 const Index = () => {
@@ -17,8 +16,6 @@ const Index = () => {
 
   useEffect(() => {
     setIsLoaded(true);
-    
-    // Scroll to top on page load
     window.scrollTo(0, 0);
   }, []);
 
@@ -35,7 +32,7 @@ const Index = () => {
             Discover our diverse portfolio of tokenized real estate investment opportunities across prime locations.
           </p>
           <Link to="/properties">
-            <Button className="rounded-full" size="lg">
+            <Button className="rounded-full bg-accent hover:bg-accent/90" size="lg">
               View All Properties
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
@@ -47,7 +44,6 @@ const Index = () => {
           subtitle=""
         />
       </div>
-      <Stats />
       <Footer />
     </div>
   );
