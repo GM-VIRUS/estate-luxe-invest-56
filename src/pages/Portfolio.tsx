@@ -8,7 +8,8 @@ import PortfolioSummary from "@/components/portfolio/PortfolioSummary";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Clock, RefreshCw, Search } from "lucide-react";
+import { Clock, RefreshCw, Search, ArrowLeft } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Portfolio = () => {
   const [portfolio, setPortfolio] = useState<UserPortfolio | null>(null);
@@ -102,6 +103,15 @@ const Portfolio = () => {
 
   return (
     <div className="container mx-auto px-4 py-16">
+      <div className="mb-6">
+        <Link to="/">
+          <Button variant="ghost" className="pl-0 group transition-all duration-300 hover:translate-x-[-5px]">
+            <ArrowLeft className="h-4 w-4 mr-2 transition-transform group-hover:scale-110" />
+            Back to Home
+          </Button>
+        </Link>
+      </div>
+      
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div>
           <h1 className="text-3xl font-bold mb-1">My Portfolio</h1>
