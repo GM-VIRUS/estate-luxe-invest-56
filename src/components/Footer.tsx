@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 import { Facebook, Twitter, Instagram, Linkedin, ArrowUpRight } from "lucide-react";
 
@@ -59,11 +58,6 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/how-it-works" className="text-muted-foreground hover:text-accent transition-colors">
-                  How It Works
-                </Link>
-              </li>
-              <li>
                 <Link to="/about" className="text-muted-foreground hover:text-accent transition-colors">
                   About Us
                 </Link>
@@ -75,24 +69,19 @@ const Footer = () => {
             <h3 className="text-lg font-semibold mb-4">Resources</h3>
             <ul className="space-y-3">
               <li>
-                <a href="#" className="text-muted-foreground hover:text-accent transition-colors">
-                  Knowledge Base
-                </a>
-              </li>
-              <li>
-                <a href="#" className="text-muted-foreground hover:text-accent transition-colors">
-                  Investment Guide
-                </a>
-              </li>
-              <li>
-                <a href="#" className="text-muted-foreground hover:text-accent transition-colors">
+                <Link to="/faq" className="text-muted-foreground hover:text-accent transition-colors">
                   FAQ
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="text-muted-foreground hover:text-accent transition-colors">
-                  Blog
-                </a>
+                <Link to="/investment-guide" className="text-muted-foreground hover:text-accent transition-colors">
+                  Investment Guide
+                </Link>
+              </li>
+              <li>
+                <Link to="/support" className="text-muted-foreground hover:text-accent transition-colors">
+                  Support
+                </Link>
               </li>
             </ul>
           </div>

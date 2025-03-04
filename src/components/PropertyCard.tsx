@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Property } from "../types/property";
@@ -18,7 +17,7 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
   );
 
   return (
-    <div className="property-card group rounded-xl overflow-hidden bg-card border border-border">
+    <div className="property-card group rounded-xl overflow-hidden bg-card border border-border cursor-pointer">
       <div className="relative aspect-[4/3] overflow-hidden">
         <div className={`absolute inset-0 bg-gray-200 ${isImageLoaded ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`} />
         <img

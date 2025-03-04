@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Search, Coins, BarChart3, Wallet } from "lucide-react";
 
@@ -36,12 +35,6 @@ const HowItWorks = () => {
     <section className="py-20 px-4">
       <div className="container mx-auto">
         <div className="text-center mb-16">
-          <span className={`inline-block px-4 py-1.5 mb-4 text-xs font-semibold uppercase tracking-wider bg-accent/20 text-accent rounded-full transition-all duration-700 ${
-            isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-          }`}>
-            Simple Process
-          </span>
-          
           <h2 className={`text-3xl md:text-4xl font-bold mb-4 transition-all duration-700 delay-100 ${
             isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
           }`}>
