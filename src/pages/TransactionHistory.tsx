@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -54,11 +53,9 @@ import { format } from "date-fns";
 import TransactionFilter from "@/components/transactions/TransactionFilter";
 import { toast } from "@/hooks/use-toast";
 
-// Transaction types allowed in the system
 const TRANSACTION_TYPES = ["Buy", "Sell", "Staking", "Reward"] as const;
 type TransactionType = typeof TRANSACTION_TYPES[number];
 
-// Extending the PortfolioTransaction type to include new fields
 interface ExtendedTransaction extends PortfolioTransaction {
   type: TransactionType;
   hash: string;
@@ -81,30 +78,22 @@ const TransactionHistory = () => {
   });
   
   useEffect(() => {
-    // Simulate fetch with delay
     const fetchData = async () => {
       setIsLoading(true);
-      // Get basic transaction data and extend it
       const rawTransactions = await getUserTransactions();
-      
-      // Transform to extended transactions
       const extendedTransactions: ExtendedTransaction[] = rawTransactions.map(tx => {
-        // Generate mock hash
         const hash = `0x${Array.from({length: 40}, () => 
           Math.floor(Math.random() * 16).toString(16)).join('')}`;
-        
         return {
           ...tx,
           hash,
           status: "Completed" as const,
           timestamp: new Date(tx.date),
-          // If the original type doesn't match our allowed types, default to "Buy"
           type: TRANSACTION_TYPES.includes(tx.type as TransactionType) 
             ? tx.type as TransactionType 
             : "Buy"
         };
       });
-      
       setTransactions(extendedTransactions);
       setFilteredTransactions(extendedTransactions);
       setIsLoading(false);
@@ -113,7 +102,6 @@ const TransactionHistory = () => {
     fetchData();
   }, []);
   
-  // Apply filters when they change
   useEffect(() => {
     applyFilters();
   }, [activeFilters, transactions]);
@@ -121,14 +109,12 @@ const TransactionHistory = () => {
   const applyFilters = () => {
     let filtered = [...transactions];
     
-    // Filter by transaction type
     const selectedTypes = activeFilters.types
       .filter(t => t.checked)
       .map(t => t.type);
     
     filtered = filtered.filter(tx => selectedTypes.includes(tx.type));
     
-    // Filter by date range
     if (activeFilters.dateRange === "7days") {
       const cutoff = new Date();
       cutoff.setDate(cutoff.getDate() - 7);
@@ -153,33 +139,23 @@ const TransactionHistory = () => {
   
   const handleRefresh = () => {
     setIsRefreshing(true);
-    
-    // Simulate refresh with delay
     setTimeout(() => {
-      // In a real app, we'd refetch the data here
       setIsRefreshing(false);
     }, 1000);
   };
   
-  const handleExport = (format: "csv" | "pdf") => {
-    // In a real app, we'd generate and download the file
-    console.log(`Exporting transactions in ${format} format`);
-    
-    // For demonstration, show a toast notification
+  const handleExport = (exportFormat: "csv" | "pdf") => {
+    console.log(`Exporting transactions in ${exportFormat} format`);
     toast({
       title: "Export initiated",
-      description: `Your transaction history is being exported as ${format.toUpperCase()}`,
+      description: `Your transaction history is being exported as ${exportFormat.toUpperCase()}`,
     });
-    
-    // Mock download by creating a dummy file
-    if (format === "csv") {
-      // Create CSV content
+    if (exportFormat === "csv") {
       const csvContent = "data:text/csv;charset=utf-8," + 
         "Date,Type,Amount,Hash,Status\n" +
         filteredTransactions.map(tx => 
           `${format(tx.timestamp, "yyyy-MM-dd HH:mm:ss")},${tx.type},${tx.total},${tx.hash},${tx.status}`
         ).join("\n");
-      
       const encodedUri = encodeURI(csvContent);
       const link = document.createElement("a");
       link.setAttribute("href", encodedUri);
@@ -188,8 +164,6 @@ const TransactionHistory = () => {
       link.click();
       document.body.removeChild(link);
     } else {
-      // For PDF, we'd typically use a library like jsPDF
-      // This is just a placeholder
       toast({
         title: "PDF Export",
         description: "PDF export would be implemented with a library like jsPDF",
