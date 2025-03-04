@@ -16,14 +16,14 @@ const HeroSection = () => {
       subheading: "Fractional ownership made simple, transparent, and accessible."
     },
     {
-      component: Stats,
-      heading: "Our Track Record",
-      subheading: "Building trust through consistent performance and proven expertise."
-    },
-    {
       imageUrl: "https://images.unsplash.com/photo-1439337153520-7082a56a81f4?auto=format&fit=crop&q=80",
       heading: "Diversify Your Investments",
       subheading: "Access exclusive properties and earn passive income through rental yields."
+    },
+    {
+      component: Stats,
+      heading: "Our Track Record",
+      subheading: "Building trust through consistent performance and proven expertise."
     }
   ];
 
@@ -53,10 +53,10 @@ const HeroSection = () => {
                   alt={slide.heading}
                   className="w-full h-full object-cover"
                 />
-                <div className="absolute inset-0 bg-black/50 backdrop-blur-[2px]" />
+                <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/70 backdrop-blur-[2px]" />
               </>
             ) : (
-              <div className="w-full h-full bg-gradient-to-br from-accent via-accent/90 to-accent/70" />
+              <div className="w-full h-full bg-gradient-to-br from-accent/90 via-accent/80 to-accent/70" />
             )}
           </div>
         ))}
