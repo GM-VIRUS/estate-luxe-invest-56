@@ -1,6 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { properties } from "../utils/propertyData";
+import { useSavedProperties } from "../contexts/SavedPropertiesContext";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import PropertyGrid from "../components/PropertyGrid";
@@ -10,6 +11,9 @@ const Properties = () => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [filteredProperties, setFilteredProperties] = useState(properties);
   const [searchTerm, setSearchTerm] = useState("");
+  const { savedProperties } = useSavedProperties();
+  
+  const hasSavedProperties = savedProperties.length > 0;
 
   useEffect(() => {
     setIsLoaded(true);
@@ -51,6 +55,19 @@ const Properties = () => {
             <SearchBar onSearch={handleSearch} />
           </div>
           
+          {/* Saved Properties Section */}
+          {hasSavedProperties && (
+            <div className="mb-16">
+              <PropertyGrid 
+                properties={savedProperties}
+                title="Saved Properties"
+                subtitle="Properties you've saved for later consideration."
+              />
+              <div className="border-b border-border/30 my-16"></div>
+            </div>
+          )}
+          
+          {/* All Properties Section */}
           {filteredProperties.length === 0 ? (
             <div className="text-center py-20">
               <h3 className="text-2xl font-medium mb-2">No properties found</h3>
@@ -60,7 +77,8 @@ const Properties = () => {
             </div>
           ) : (
             <PropertyGrid 
-              properties={filteredProperties} 
+              properties={filteredProperties}
+              title={searchTerm ? "Search Results" : "All Properties"}
             />
           )}
         </div>

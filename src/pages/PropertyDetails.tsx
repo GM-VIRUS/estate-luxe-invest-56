@@ -1,10 +1,11 @@
-
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ChevronLeft, MapPin, DollarSign, CalendarDays, LineChart, Share2, Heart, ArrowRight, BarChart3, BadgePercent, Building, Home } from "lucide-react";
+import { ChevronLeft, MapPin, DollarSign, CalendarDays, LineChart, Share2, Heart, ArrowRight, BarChart3, BadgePercent, Building, Home, Clipboard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getPropertyDetails } from "../utils/propertyData";
 import { formatCurrency, formatDate } from "../utils/formatters";
+import { useSavedProperties } from "../contexts/SavedPropertiesContext";
+import { shareProperty } from "../utils/shareUtils";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
@@ -13,6 +14,8 @@ const PropertyDetails = () => {
   const [property, setProperty] = useState(id ? getPropertyDetails(id) : undefined);
   const [activeImage, setActiveImage] = useState(0);
   const [isLoaded, setIsLoaded] = useState(false);
+  const { saveProperty, isSaved } = useSavedProperties();
+  const [isSharing, setIsSharing] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -25,6 +28,24 @@ const PropertyDetails = () => {
     // Scroll to top on page load
     window.scrollTo(0, 0);
   }, [id]);
+
+  const handleSaveProperty = () => {
+    if (property) {
+      saveProperty(property);
+    }
+  };
+
+  const handleShareProperty = () => {
+    if (property) {
+      setIsSharing(true);
+      shareProperty(property.id, property.title);
+      
+      // Reset the icon after a short delay
+      setTimeout(() => {
+        setIsSharing(false);
+      }, 2000);
+    }
+  };
 
   if (!property) {
     return (
@@ -73,13 +94,27 @@ const PropertyDetails = () => {
               </div>
             </div>
             <div className="flex flex-wrap gap-3">
-              <Button variant="outline" className="rounded-full">
-                <Share2 className="h-4 w-4 mr-2" />
-                Share
+              <Button 
+                variant="outline" 
+                className="rounded-full" 
+                onClick={handleShareProperty}
+              >
+                {isSharing ? (
+                  <Clipboard className="h-4 w-4 mr-2" />
+                ) : (
+                  <Share2 className="h-4 w-4 mr-2" />
+                )}
+                {isSharing ? "Copied!" : "Share"}
               </Button>
-              <Button variant="outline" className="rounded-full">
-                <Heart className="h-4 w-4 mr-2" />
-                Save
+              <Button 
+                variant="outline" 
+                className={`rounded-full ${isSaved(property.id) ? 'bg-accent/10 text-accent border-accent/30' : ''}`}
+                onClick={handleSaveProperty}
+              >
+                <Heart 
+                  className={`h-4 w-4 mr-2 ${isSaved(property.id) ? 'fill-accent text-accent' : ''}`} 
+                />
+                {isSaved(property.id) ? "Saved" : "Save"}
               </Button>
               <Button className="rounded-full bg-accent hover:bg-accent/90 text-white">
                 Invest Now

@@ -1,9 +1,11 @@
+
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Property } from "../types/property";
-import { MapPin, TrendingUp, Star, ExternalLink } from "lucide-react";
+import { MapPin, TrendingUp, Star, ExternalLink, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "../utils/formatters";
+import { useSavedProperties } from "../contexts/SavedPropertiesContext";
 
 interface PropertyCardProps {
   property: Property;
@@ -11,6 +13,7 @@ interface PropertyCardProps {
 
 const PropertyCard = ({ property }: PropertyCardProps) => {
   const [isImageLoaded, setIsImageLoaded] = useState(false);
+  const { isSaved } = useSavedProperties();
 
   const progressPercentage = Math.round(
     ((property.totalSupply - property.availableTokens) / property.totalSupply) * 100
@@ -31,6 +34,13 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
           <div className="absolute top-3 left-3 bg-accent/90 text-white text-xs font-semibold px-3 py-1 rounded-full flex items-center">
             <Star className="h-3 w-3 mr-1" />
             Featured
+          </div>
+        )}
+        
+        {isSaved(property.id) && (
+          <div className="absolute top-3 right-12 bg-accent/90 text-white text-xs font-semibold px-3 py-1 rounded-full flex items-center">
+            <Heart className="h-3 w-3 mr-1 fill-white" />
+            Saved
           </div>
         )}
         
