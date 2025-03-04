@@ -6,11 +6,15 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import PropertyGrid from "../components/PropertyGrid";
 import SearchBar from "../components/SearchBar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Heart, List } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const Properties = () => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [filteredProperties, setFilteredProperties] = useState(properties);
   const [searchTerm, setSearchTerm] = useState("");
+  const [activeTab, setActiveTab] = useState("all");
   const { savedProperties } = useSavedProperties();
   
   const hasSavedProperties = savedProperties.length > 0;
@@ -55,32 +59,75 @@ const Properties = () => {
             <SearchBar onSearch={handleSearch} />
           </div>
           
-          {/* Saved Properties Section */}
-          {hasSavedProperties && (
-            <div className="mb-16">
-              <PropertyGrid 
-                properties={savedProperties}
-                title="Saved Properties"
-                subtitle="Properties you've saved for later consideration."
-              />
-              <div className="border-b border-border/30 my-16"></div>
-            </div>
-          )}
-          
-          {/* All Properties Section */}
-          {filteredProperties.length === 0 ? (
-            <div className="text-center py-20">
-              <h3 className="text-2xl font-medium mb-2">No properties found</h3>
-              <p className="text-muted-foreground">
-                No properties match your search criteria "{searchTerm}". Try a different search term.
-              </p>
-            </div>
-          ) : (
-            <PropertyGrid 
-              properties={filteredProperties}
-              title={searchTerm ? "Search Results" : "All Properties"}
-            />
-          )}
+          <div className="mx-auto max-w-3xl mb-10">
+            <Tabs 
+              defaultValue="all" 
+              value={activeTab}
+              onValueChange={setActiveTab}
+              className="w-full"
+            >
+              <TabsList className="grid w-full grid-cols-2 h-14 rounded-xl bg-card/50 p-1 backdrop-blur-sm">
+                <TabsTrigger 
+                  value="all" 
+                  className={cn(
+                    "flex items-center justify-center gap-2 rounded-lg py-3 text-base font-medium transition-all",
+                    activeTab === "all" ? "bg-accent text-white shadow-sm" : "text-foreground/70 hover:text-foreground hover:bg-accent/10"
+                  )}
+                >
+                  <List className="h-5 w-5" />
+                  All Properties
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="saved" 
+                  disabled={!hasSavedProperties}
+                  className={cn(
+                    "flex items-center justify-center gap-2 rounded-lg py-3 text-base font-medium transition-all",
+                    activeTab === "saved" ? "bg-accent text-white shadow-sm" : "text-foreground/70 hover:text-foreground hover:bg-accent/10",
+                    !hasSavedProperties && "opacity-50 cursor-not-allowed"
+                  )}
+                >
+                  <Heart className={cn("h-5 w-5", hasSavedProperties && activeTab === "saved" && "fill-white")} />
+                  Saved Properties 
+                  {hasSavedProperties && (
+                    <span className="ml-1 flex h-6 w-6 items-center justify-center rounded-full bg-white/20 text-xs font-semibold">
+                      {savedProperties.length}
+                    </span>
+                  )}
+                </TabsTrigger>
+              </TabsList>
+              
+              <TabsContent 
+                value="all" 
+                className="mt-6 focus-visible:outline-none focus-visible:ring-0"
+              >
+                {filteredProperties.length === 0 ? (
+                  <div className="text-center py-20">
+                    <h3 className="text-2xl font-medium mb-2">No properties found</h3>
+                    <p className="text-muted-foreground">
+                      No properties match your search criteria "{searchTerm}". Try a different search term.
+                    </p>
+                  </div>
+                ) : (
+                  <PropertyGrid 
+                    properties={filteredProperties}
+                    title={searchTerm ? "Search Results" : null}
+                  />
+                )}
+              </TabsContent>
+              
+              <TabsContent 
+                value="saved" 
+                className="mt-6 focus-visible:outline-none focus-visible:ring-0"
+              >
+                {hasSavedProperties && (
+                  <PropertyGrid 
+                    properties={savedProperties}
+                    title={null}
+                  />
+                )}
+              </TabsContent>
+            </Tabs>
+          </div>
         </div>
       </div>
       
