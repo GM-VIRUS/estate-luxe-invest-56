@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -16,14 +15,14 @@ const HeroSection = () => {
       subheading: "Fractional ownership made simple, transparent, and accessible."
     },
     {
-      imageUrl: "https://images.unsplash.com/photo-1439337153520-7082a56a81f4?auto=format&fit=crop&q=80",
-      heading: "Diversify Your Investments",
-      subheading: "Access exclusive properties and earn passive income through rental yields."
-    },
-    {
       component: Stats,
       heading: "Our Track Record",
       subheading: "Building trust through consistent performance and proven expertise."
+    },
+    {
+      imageUrl: "https://images.unsplash.com/photo-1439337153520-7082a56a81f4?auto=format&fit=crop&q=80",
+      heading: "Diversify Your Investments",
+      subheading: "Access exclusive properties and earn passive income through rental yields."
     }
   ];
 
