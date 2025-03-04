@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Eye, EyeOff, LogIn, Mail, Lock, ArrowRight, Wallet } from "lucide-react";
 import { toast } from "sonner";
 import Navbar from "@/components/Navbar";
@@ -9,15 +9,26 @@ import { Button } from "@/components/ui/button";
 import WalletConnectModal from "@/components/auth/WalletConnectModal";
 import SocialAuthButtons from "@/components/auth/SocialAuthButtons";
 import ForgotPasswordModal from "@/components/auth/ForgotPasswordModal";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Login = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { isAuthenticated } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showWalletModal, setShowWalletModal] = useState(false);
   const [showForgotPasswordModal, setShowForgotPasswordModal] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  // Redirect if user is already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      const from = location.state?.from?.pathname || "/";
+      navigate(from, { replace: true });
+    }
+  }, [isAuthenticated, navigate, location]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,9 +46,10 @@ const Login = () => {
     // After wallet is connected, show success and redirect
     toast.success("Login successful!");
     
-    // Redirect to dashboard after a short delay
+    // Redirect to dashboard or the page they were trying to access
+    const from = location.state?.from?.pathname || "/";
     setTimeout(() => {
-      navigate("/");
+      navigate(from, { replace: true });
     }, 1500);
   };
 

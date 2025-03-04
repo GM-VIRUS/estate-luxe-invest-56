@@ -5,6 +5,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { SavedPropertiesProvider } from "./contexts/SavedPropertiesContext";
+import { AuthProvider } from "./contexts/AuthContext";
+import ProtectedRoute from "./components/auth/ProtectedRoute";
 import Index from "./pages/Index";
 import Properties from "./pages/Properties";
 import PropertyDetails from "./pages/PropertyDetails";
@@ -21,25 +23,33 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <SavedPropertiesProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/properties" element={<Properties />} />
-            <Route path="/property/:id" element={<PropertyDetails />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
-            <Route path="/faq" element={<FAQ />} />
-            <Route path="/support" element={<Support />} />
-            <Route path="/portfolio" element={<Portfolio />} />
-            <Route path="/profile" element={<Profile />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </SavedPropertiesProvider>
+      <AuthProvider>
+        <SavedPropertiesProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              {/* Public routes */}
+              <Route path="/" element={<Index />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<Signup />} />
+              
+              {/* Protected routes */}
+              <Route element={<ProtectedRoute />}>
+                <Route path="/properties" element={<Properties />} />
+                <Route path="/property/:id" element={<PropertyDetails />} />
+                <Route path="/faq" element={<FAQ />} />
+                <Route path="/support" element={<Support />} />
+                <Route path="/portfolio" element={<Portfolio />} />
+                <Route path="/profile" element={<Profile />} />
+              </Route>
+              
+              {/* Catch-all route */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </SavedPropertiesProvider>
+      </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );

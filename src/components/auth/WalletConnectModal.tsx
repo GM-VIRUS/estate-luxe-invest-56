@@ -5,6 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import Web3 from "web3";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface WalletConnectModalProps {
   isOpen: boolean;
@@ -15,6 +16,7 @@ interface WalletConnectModalProps {
 export type ModalView = "walletConnect" | "emailVerification" | "success" | "error";
 
 const WalletConnectModal = ({ isOpen, onClose, onConnect }: WalletConnectModalProps) => {
+  const { login } = useAuth();
   const [connecting, setConnecting] = useState(false);
   const [connected, setConnected] = useState(false);
   const [currentView, setCurrentView] = useState<ModalView>("walletConnect");
@@ -85,6 +87,11 @@ const WalletConnectModal = ({ isOpen, onClose, onConnect }: WalletConnectModalPr
   };
 
   const handleEmailVerified = () => {
+    // Log user in with the connected wallet address
+    if (walletAddress) {
+      login(walletAddress);
+    }
+    
     setCurrentView("success");
     
     // After showing success message, close modal and notify parent
