@@ -24,6 +24,8 @@ const PasswordChangeForm = () => {
     newPassword: '',
     confirmPassword: ''
   });
+  // Add state to control dialog closure
+  const [shouldCloseDialog, setShouldCloseDialog] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -121,13 +123,16 @@ const PasswordChangeForm = () => {
       });
       setStep('verify');
       
-      // Close dialog
-      document.querySelector('[data-state="open"] button[data-state="closed"]')?.click();
+      // Set flag to close dialog
+      setShouldCloseDialog(true);
     }, 1500);
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6 py-4">
+      {shouldCloseDialog && (
+        <DialogClose className="hidden" />
+      )}
       {step === 'verify' ? (
         <div className="space-y-4">
           <div className="space-y-2">
