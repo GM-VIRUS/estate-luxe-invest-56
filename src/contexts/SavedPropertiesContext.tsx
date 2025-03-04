@@ -8,6 +8,7 @@ interface SavedPropertiesContextType {
   saveProperty: (property: Property) => void;
   removeProperty: (propertyId: string) => void;
   isSaved: (propertyId: string) => boolean;
+  toggleSaved: (propertyId: string) => void;
 }
 
 const SavedPropertiesContext = createContext<SavedPropertiesContextType | undefined>(undefined);
@@ -62,8 +63,27 @@ export const SavedPropertiesProvider = ({ children }: { children: ReactNode }) =
     return savedProperties.some((p) => p.id === propertyId);
   };
 
+  // Add the toggleSaved method that was missing
+  const toggleSaved = (propertyId: string) => {
+    const property = savedProperties.find(p => p.id === propertyId);
+    
+    if (property) {
+      // If the property is already saved, remove it
+      removeProperty(propertyId);
+    } else {
+      // If the property is not saved, we need to find it in the available properties and add it
+      // Since we don't have direct access to all properties here, we'll need to handle this differently
+      // For now, we'll just display a toast message
+      toast({
+        title: "Cannot Save Property",
+        description: "Please use the 'Save' button on the property card to save this property.",
+        variant: "destructive"
+      });
+    }
+  };
+
   return (
-    <SavedPropertiesContext.Provider value={{ savedProperties, saveProperty, removeProperty, isSaved }}>
+    <SavedPropertiesContext.Provider value={{ savedProperties, saveProperty, removeProperty, isSaved, toggleSaved }}>
       {children}
     </SavedPropertiesContext.Provider>
   );

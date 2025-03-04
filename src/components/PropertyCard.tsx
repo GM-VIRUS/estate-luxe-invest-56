@@ -13,11 +13,16 @@ interface PropertyCardProps {
 
 const PropertyCard = ({ property }: PropertyCardProps) => {
   const [isImageLoaded, setIsImageLoaded] = useState(false);
-  const { isSaved, toggleSaved } = useSavedProperties();
+  const { isSaved, saveProperty } = useSavedProperties();
 
   const progressPercentage = Math.round(
     ((property.totalSupply - property.availableTokens) / property.totalSupply) * 100
   );
+
+  // Handler to save the property
+  const handleSaveProperty = () => {
+    saveProperty(property);
+  };
 
   return (
     <div className="property-card rounded-xl overflow-hidden bg-card border border-border hover:shadow-xl transition-all duration-300">
@@ -105,7 +110,7 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
             </Link>
           </Button>
           <Button 
-            onClick={() => toggleSaved(property.id)}
+            onClick={handleSaveProperty}
             variant="outline" 
             className="rounded-full border-accent/20 text-accent hover:bg-accent/5 transition-all"
           >
