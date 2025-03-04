@@ -6,12 +6,15 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import PropertyGrid from "../components/PropertyGrid";
 import SearchBar from "../components/SearchBar";
+import { Heart } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 const Properties = () => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [filteredProperties, setFilteredProperties] = useState(properties);
   const [searchTerm, setSearchTerm] = useState("");
   const { savedProperties } = useSavedProperties();
+  const [activeTab, setActiveTab] = useState<"all" | "saved">("all");
   
   const hasSavedProperties = savedProperties.length > 0;
 
@@ -55,32 +58,57 @@ const Properties = () => {
             <SearchBar onSearch={handleSearch} />
           </div>
           
-          {/* Saved Properties Section */}
-          {hasSavedProperties && (
-            <div className="mb-16">
-              <PropertyGrid 
-                properties={savedProperties}
-                title="Saved Properties"
-                subtitle="Properties you've saved for later consideration."
-              />
-              <div className="border-b border-border/30 my-16"></div>
-            </div>
-          )}
-          
-          {/* All Properties Section */}
-          {filteredProperties.length === 0 ? (
-            <div className="text-center py-20">
-              <h3 className="text-2xl font-medium mb-2">No properties found</h3>
-              <p className="text-muted-foreground">
-                No properties match your search criteria "{searchTerm}". Try a different search term.
-              </p>
-            </div>
-          ) : (
-            <PropertyGrid 
-              properties={filteredProperties}
-              title={searchTerm ? "Search Results" : "All Properties"}
-            />
-          )}
+          {/* Properties Tabs Navigation */}
+          <div className="max-w-lg mx-auto mb-10">
+            <Tabs defaultValue={activeTab} onValueChange={(value) => setActiveTab(value as "all" | "saved")} className="w-full">
+              <TabsList className="grid grid-cols-2 w-full mb-8">
+                <TabsTrigger value="all" className="rounded-l-full py-3">
+                  All Properties
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="saved" 
+                  className="rounded-r-full py-3"
+                  disabled={!hasSavedProperties}
+                >
+                  <Heart className={`mr-2 h-4 w-4 ${hasSavedProperties ? "text-accent fill-accent" : ""}`} />
+                  Saved Properties {hasSavedProperties && `(${savedProperties.length})`}
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="all" className="mt-0">
+                {filteredProperties.length === 0 ? (
+                  <div className="text-center py-20">
+                    <h3 className="text-2xl font-medium mb-2">No properties found</h3>
+                    <p className="text-muted-foreground">
+                      No properties match your search criteria "{searchTerm}". Try a different search term.
+                    </p>
+                  </div>
+                ) : (
+                  <PropertyGrid 
+                    properties={filteredProperties}
+                    title={searchTerm ? "Search Results" : "All Properties"}
+                  />
+                )}
+              </TabsContent>
+
+              <TabsContent value="saved" className="mt-0">
+                {hasSavedProperties ? (
+                  <PropertyGrid 
+                    properties={savedProperties}
+                    title="Your Saved Properties"
+                    subtitle="Properties you've saved for later consideration."
+                  />
+                ) : (
+                  <div className="text-center py-20">
+                    <h3 className="text-2xl font-medium mb-2">No saved properties</h3>
+                    <p className="text-muted-foreground">
+                      Properties you save will appear here for easy access.
+                    </p>
+                  </div>
+                )}
+              </TabsContent>
+            </Tabs>
+          </div>
         </div>
       </div>
       
