@@ -5,7 +5,7 @@ import PropertyCard from "./PropertyCard";
 
 interface PropertyGridProps {
   properties: Property[];
-  title?: string;
+  title?: string | null;
   subtitle?: string;
 }
 
@@ -17,9 +17,9 @@ const PropertyGrid = ({ properties, title, subtitle }: PropertyGridProps) => {
   }, []);
 
   return (
-    <div className="container mx-auto px-4 py-16">
+    <div className="w-full">
       {(title || subtitle) && (
-        <div className="text-center mb-12">
+        <div className="text-center mb-8">
           {title && (
             <h2 className={`text-3xl md:text-4xl font-bold mb-4 transition-all duration-700 ${
               isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"

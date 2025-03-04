@@ -43,10 +43,10 @@ const Properties = () => {
   };
 
   return (
-    <div className={`min-h-screen transition-opacity duration-500 ${isLoaded ? "opacity-100" : "opacity-0"}`}>
+    <div className={`min-h-screen bg-background transition-opacity duration-500 ${isLoaded ? "opacity-100" : "opacity-0"}`}>
       <Navbar />
       
-      <div className="pt-24 pb-16 bg-gradient-to-b from-background to-background/50">
+      <div className="pt-24 pb-16">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h1 className="text-4xl md:text-5xl font-bold mb-4">All Properties</h1>
@@ -59,46 +59,48 @@ const Properties = () => {
             <SearchBar onSearch={handleSearch} />
           </div>
           
-          <div className="mx-auto max-w-3xl mb-10">
+          <div className="mx-auto max-w-7xl">
             <Tabs 
               defaultValue="all" 
               value={activeTab}
               onValueChange={setActiveTab}
               className="w-full"
             >
-              <TabsList className="grid w-full grid-cols-2 h-14 rounded-xl bg-card/50 p-1 backdrop-blur-sm">
-                <TabsTrigger 
-                  value="all" 
-                  className={cn(
-                    "flex items-center justify-center gap-2 rounded-lg py-3 text-base font-medium transition-all",
-                    activeTab === "all" ? "bg-accent text-white shadow-sm" : "text-foreground/70 hover:text-foreground hover:bg-accent/10"
-                  )}
-                >
-                  <List className="h-5 w-5" />
-                  All Properties
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="saved" 
-                  disabled={!hasSavedProperties}
-                  className={cn(
-                    "flex items-center justify-center gap-2 rounded-lg py-3 text-base font-medium transition-all",
-                    activeTab === "saved" ? "bg-accent text-white shadow-sm" : "text-foreground/70 hover:text-foreground hover:bg-accent/10",
-                    !hasSavedProperties && "opacity-50 cursor-not-allowed"
-                  )}
-                >
-                  <Heart className={cn("h-5 w-5", hasSavedProperties && activeTab === "saved" && "fill-white")} />
-                  Saved Properties 
-                  {hasSavedProperties && (
-                    <span className="ml-1 flex h-6 w-6 items-center justify-center rounded-full bg-white/20 text-xs font-semibold">
-                      {savedProperties.length}
-                    </span>
-                  )}
-                </TabsTrigger>
-              </TabsList>
+              <div className="flex justify-center mb-8">
+                <TabsList className="grid w-[400px] grid-cols-2 h-14 rounded-xl bg-card/50 p-1 backdrop-blur-sm">
+                  <TabsTrigger 
+                    value="all" 
+                    className={cn(
+                      "flex items-center justify-center gap-2 rounded-lg py-3 text-base font-medium transition-all",
+                      activeTab === "all" ? "bg-accent text-white shadow-sm" : "text-foreground/70 hover:text-foreground hover:bg-accent/10"
+                    )}
+                  >
+                    <List className="h-5 w-5" />
+                    All Properties
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="saved" 
+                    disabled={!hasSavedProperties}
+                    className={cn(
+                      "flex items-center justify-center gap-2 rounded-lg py-3 text-base font-medium transition-all",
+                      activeTab === "saved" ? "bg-accent text-white shadow-sm" : "text-foreground/70 hover:text-foreground hover:bg-accent/10",
+                      !hasSavedProperties && "opacity-50 cursor-not-allowed"
+                    )}
+                  >
+                    <Heart className={cn("h-5 w-5", hasSavedProperties && activeTab === "saved" && "fill-white")} />
+                    Saved Properties 
+                    {hasSavedProperties && (
+                      <span className="ml-1 flex h-6 w-6 items-center justify-center rounded-full bg-white/20 text-xs font-semibold">
+                        {savedProperties.length}
+                      </span>
+                    )}
+                  </TabsTrigger>
+                </TabsList>
+              </div>
               
               <TabsContent 
                 value="all" 
-                className="mt-6 focus-visible:outline-none focus-visible:ring-0"
+                className="focus-visible:outline-none focus-visible:ring-0"
               >
                 {filteredProperties.length === 0 ? (
                   <div className="text-center py-20">
@@ -117,7 +119,7 @@ const Properties = () => {
               
               <TabsContent 
                 value="saved" 
-                className="mt-6 focus-visible:outline-none focus-visible:ring-0"
+                className="focus-visible:outline-none focus-visible:ring-0"
               >
                 {hasSavedProperties && (
                   <PropertyGrid 

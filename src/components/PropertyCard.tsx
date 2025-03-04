@@ -13,14 +13,14 @@ interface PropertyCardProps {
 
 const PropertyCard = ({ property }: PropertyCardProps) => {
   const [isImageLoaded, setIsImageLoaded] = useState(false);
-  const { isSaved } = useSavedProperties();
+  const { isSaved, toggleSaved } = useSavedProperties();
 
   const progressPercentage = Math.round(
     ((property.totalSupply - property.availableTokens) / property.totalSupply) * 100
   );
 
   return (
-    <div className="property-card group rounded-xl overflow-hidden bg-card border border-border cursor-pointer">
+    <div className="property-card rounded-xl overflow-hidden bg-card border border-border hover:shadow-xl transition-all duration-300">
       <div className="relative aspect-[4/3] overflow-hidden">
         <div className={`absolute inset-0 bg-gray-200 ${isImageLoaded ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`} />
         <img
@@ -30,28 +30,23 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
           onLoad={() => setIsImageLoaded(true)}
         />
         
-        {property.featured && (
-          <div className="absolute top-3 left-3 bg-accent/90 text-white text-xs font-semibold px-3 py-1 rounded-full flex items-center">
-            <Star className="h-3 w-3 mr-1" />
-            Featured
-          </div>
-        )}
+        <div className="absolute top-0 left-0 p-3 flex gap-2">
+          {property.featured && (
+            <div className="bg-accent text-white text-xs font-semibold px-3 py-1.5 rounded-full flex items-center">
+              <Star className="h-3 w-3 mr-1" />
+              Featured
+            </div>
+          )}
+        </div>
         
-        {isSaved(property.id) && (
-          <div className="absolute top-3 right-12 bg-accent/90 text-white text-xs font-semibold px-3 py-1 rounded-full flex items-center">
-            <Heart className="h-3 w-3 mr-1 fill-white" />
-            Saved
-          </div>
-        )}
-        
-        <div className="absolute top-3 right-3 bg-black/50 backdrop-blur-md text-white text-xs font-medium px-3 py-1.5 rounded-full">
+        <div className="absolute top-3 right-3 bg-black/50 backdrop-blur-sm text-white text-xs font-medium px-3 py-1.5 rounded-full">
           {property.propertyType}
         </div>
       </div>
 
       <div className="p-5">
         <div className="flex justify-between items-start mb-2">
-          <h3 className="text-lg font-semibold line-clamp-1 group-hover:text-accent transition-colors">
+          <h3 className="text-xl font-semibold line-clamp-1 hover:text-accent transition-colors">
             {property.title}
           </h3>
           <div className="flex items-center text-sm font-medium text-accent">
@@ -60,7 +55,7 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
           </div>
         </div>
 
-        <div className="flex items-center text-sm text-muted-foreground mb-3">
+        <div className="flex items-center text-sm text-muted-foreground mb-4">
           <MapPin className="h-4 w-4 mr-1 shrink-0" />
           <span className="truncate">{property.city}, {property.state}</span>
         </div>
@@ -79,7 +74,7 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3 text-sm">
+          <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
               <p className="text-muted-foreground">Total Value</p>
               <p className="font-medium">{formatCurrency(property.totalValue)}</p>
@@ -102,7 +97,7 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
         <div className="flex gap-3">
           <Button 
             asChild 
-            className="flex-1 rounded-full bg-accent hover:bg-accent/90 text-white transition-all"
+            className="rounded-full bg-accent hover:bg-accent/90 text-white transition-all"
           >
             <Link to={`/property/${property.id}`}>
               View Details
@@ -110,8 +105,9 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
             </Link>
           </Button>
           <Button 
+            onClick={() => toggleSaved(property.id)}
             variant="outline" 
-            className="flex-1 rounded-full border-accent/20 text-accent hover:bg-accent/5 transition-all"
+            className="rounded-full border-accent/20 text-accent hover:bg-accent/5 transition-all"
           >
             Invest Now
           </Button>
