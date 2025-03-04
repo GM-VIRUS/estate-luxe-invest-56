@@ -56,7 +56,7 @@ const PortfolioSummary = ({ portfolio }: PortfolioSummaryProps) => {
         <p className="text-2xl font-semibold">{overallROI.toFixed(2)}%</p>
         <HoverCard>
           <HoverCardTrigger asChild>
-            <p className="text-xs text-muted-foreground cursor-help underline underline-offset-2">
+            <p className="text-xs text-muted-foreground cursor-pointer underline underline-offset-2">
               How is this calculated?
             </p>
           </HoverCardTrigger>
