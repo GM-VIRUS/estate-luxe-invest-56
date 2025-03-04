@@ -17,6 +17,7 @@ import Support from "./pages/Support";
 import Portfolio from "./pages/Portfolio";
 import TransactionHistory from "./pages/TransactionHistory";
 import Profile from "./pages/Profile";
+import About from "./pages/About";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -34,6 +35,7 @@ const App = () => (
               <Route path="/" element={<Index />} />
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
+              <Route path="/about" element={<About />} />
               
               {/* Protected routes */}
               <Route element={<ProtectedRoute />}>

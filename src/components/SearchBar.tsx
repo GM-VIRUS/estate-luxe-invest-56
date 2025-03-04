@@ -4,7 +4,7 @@ import { Search, MapPin, DollarSign, Building } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface SearchBarProps {
-  onSearch?: (query: string) => void;
+  onSearch?: (query: string, priceRange: string, propertyType: string) => void;
 }
 
 const SearchBar = ({ onSearch }: SearchBarProps) => {
@@ -14,9 +14,10 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
     // Call the onSearch prop if provided
     if (onSearch) {
-      onSearch(searchTerm);
+      onSearch(searchTerm, priceRange, propertyType);
     }
     
     // Log for debugging

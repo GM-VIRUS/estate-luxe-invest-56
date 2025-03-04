@@ -52,8 +52,6 @@ const Navbar = () => {
     { name: "Home", path: "/" },
     { name: "Properties", path: "/properties" },
     { name: "Portfolio", path: "/portfolio" },
-    { name: "FAQ", path: "/faq" },
-    { name: "Support", path: "/support" },
     { name: "About", path: "/about" }
   ];
 
@@ -99,7 +97,7 @@ const Navbar = () => {
             {isAuthenticated ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="rounded-full h-9 w-9 p-0 relative">
+                  <Button variant="ghost" size="icon" className="rounded-full h-9 w-9 p-0 relative cursor-pointer">
                     <Avatar className="h-9 w-9 border border-border">
                       <AvatarImage src={user?.profileImage || '/placeholder.svg'} />
                       <AvatarFallback>
@@ -117,20 +115,20 @@ const Navbar = () => {
                     </span>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => navigate('/profile')}>
+                  <DropdownMenuItem onClick={() => navigate('/profile')} className="cursor-pointer">
                     <User className="h-4 w-4 mr-2" /> Profile
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate('/portfolio')}>
+                  <DropdownMenuItem onClick={() => navigate('/portfolio')} className="cursor-pointer">
                     <User className="h-4 w-4 mr-2" /> My Portfolio
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate('/support')}>
+                  <DropdownMenuItem onClick={() => navigate('/support')} className="cursor-pointer">
                     <MessageSquare className="h-4 w-4 mr-2" /> Support
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate('/faq')}>
+                  <DropdownMenuItem onClick={() => navigate('/faq')} className="cursor-pointer">
                     <HelpCircle className="h-4 w-4 mr-2" /> FAQ
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleLogout}>
+                  <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
                     <LogOut className="h-4 w-4 mr-2" /> Log out
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -161,7 +159,7 @@ const Navbar = () => {
           {isAuthenticated && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="rounded-full h-8 w-8 p-0">
+                <Button variant="ghost" size="icon" className="rounded-full h-8 w-8 p-0 cursor-pointer">
                   <Avatar className="h-8 w-8 border border-border">
                     <AvatarImage src={user?.profileImage || '/placeholder.svg'} />
                     <AvatarFallback>
@@ -171,8 +169,8 @@ const Navbar = () => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => navigate('/profile')}>Profile</DropdownMenuItem>
-                <DropdownMenuItem onClick={handleLogout}>Log out</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/profile')} className="cursor-pointer">Profile</DropdownMenuItem>
+                <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">Log out</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           )}

@@ -25,7 +25,7 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
   };
 
   return (
-    <div className="property-card rounded-xl overflow-hidden bg-card border border-border hover:shadow-xl transition-all duration-300">
+    <div className="property-card rounded-xl overflow-hidden bg-card border border-border hover:shadow-xl transition-all duration-300 h-full flex flex-col">
       <div className="relative aspect-[4/3] overflow-hidden">
         <div className={`absolute inset-0 bg-gray-200 ${isImageLoaded ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`} />
         <img
@@ -49,7 +49,7 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
         </div>
       </div>
 
-      <div className="p-5">
+      <div className="p-5 flex flex-col flex-grow">
         <div className="flex justify-between items-start mb-2">
           <h3 className="text-xl font-semibold line-clamp-1 hover:text-accent transition-colors">
             {property.title}
@@ -65,7 +65,7 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
           <span className="truncate">{property.city}, {property.state}</span>
         </div>
 
-        <div className="space-y-4 mb-4">
+        <div className="space-y-4 mb-6 flex-grow">
           <div>
             <div className="text-sm font-medium mb-1 flex justify-between">
               <span>Investment Progress</span>
@@ -99,10 +99,10 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
           </div>
         </div>
 
-        <div className="flex gap-3">
+        <div className="flex gap-4">
           <Button 
             asChild 
-            className="rounded-full bg-accent hover:bg-accent/90 text-white transition-all"
+            className="rounded-full bg-accent hover:bg-accent/90 text-white transition-all flex-1"
           >
             <Link to={`/property/${property.id}`}>
               View Details
@@ -112,7 +112,7 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
           <Button 
             onClick={handleSaveProperty}
             variant="outline" 
-            className="rounded-full border-accent/20 text-accent hover:bg-accent/5 transition-all"
+            className="rounded-full border-accent/20 text-accent hover:bg-accent/5 transition-all flex-1"
           >
             Invest Now
           </Button>

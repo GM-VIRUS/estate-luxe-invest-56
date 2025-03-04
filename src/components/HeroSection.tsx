@@ -1,12 +1,22 @@
+
 import { useState, useEffect } from "react";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import SearchBar from "./SearchBar";
 import Stats from "./Stats";
+import { properties } from "../utils/propertyData";
 
 const HeroSection = () => {
   const [activeSlide, setActiveSlide] = useState(0);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [filteredProperties, setFilteredProperties] = useState(properties);
+
+  const scrollToHowItWorks = () => {
+    const howItWorksSection = document.getElementById('how-it-works');
+    if (howItWorksSection) {
+      howItWorksSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
 
   const slides = [
     {
@@ -15,14 +25,14 @@ const HeroSection = () => {
       subheading: "Fractional ownership made simple, transparent, and accessible."
     },
     {
-      component: Stats,
-      heading: "Our Track Record",
-      subheading: "Building trust through consistent performance and proven expertise."
-    },
-    {
       imageUrl: "https://images.unsplash.com/photo-1439337153520-7082a56a81f4?auto=format&fit=crop&q=80",
       heading: "Diversify Your Investments",
       subheading: "Access exclusive properties and earn passive income through rental yields."
+    },
+    {
+      component: Stats,
+      heading: "Our Track Record",
+      subheading: "Building trust through consistent performance and proven expertise."
     }
   ];
 
@@ -33,6 +43,45 @@ const HeroSection = () => {
     }, 6000);
     return () => clearInterval(interval);
   }, [slides.length]);
+
+  const handleSearch = (query: string, priceRange: string, propertyType: string) => {
+    let filtered = [...properties];
+    
+    // Filter by search term
+    if (query) {
+      filtered = filtered.filter(
+        property => 
+          property.title.toLowerCase().includes(query.toLowerCase()) ||
+          property.city.toLowerCase().includes(query.toLowerCase()) ||
+          property.state.toLowerCase().includes(query.toLowerCase())
+      );
+    }
+    
+    // Filter by price range
+    if (priceRange !== "Any") {
+      if (priceRange === "5000000+") {
+        filtered = filtered.filter(property => property.totalValue >= 5000000);
+      } else {
+        const [min, max] = priceRange.split('-').map(v => parseInt(v));
+        filtered = filtered.filter(property => 
+          property.totalValue >= min && property.totalValue <= max
+        );
+      }
+    }
+    
+    // Filter by property type
+    if (propertyType !== "All") {
+      filtered = filtered.filter(property => 
+        property.propertyType === propertyType
+      );
+    }
+    
+    setFilteredProperties(filtered);
+    
+    // Pass filtered properties to parent component or context
+    // This could be implemented using a context or props
+    console.log("Filtered properties:", filtered);
+  };
 
   return (
     <section className="relative min-h-screen flex flex-col justify-center overflow-hidden">
@@ -76,7 +125,7 @@ const HeroSection = () => {
             {slides[activeSlide].subheading}
           </p>
           
-          {activeSlide === 1 ? (
+          {activeSlide === 2 ? (
             <div className={`transition-all duration-700 delay-300 ${isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
               <Stats />
             </div>
@@ -86,16 +135,21 @@ const HeroSection = () => {
                 Start Investing
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
-              <Button size="lg" variant="outline" className="rounded-full border-white/20 text-white hover:bg-white/10 px-8 py-6">
+              <Button 
+                size="lg" 
+                variant="outline" 
+                className="rounded-full border-white/20 text-white hover:bg-white/10 px-8 py-6"
+                onClick={scrollToHowItWorks}
+              >
                 Learn How It Works
               </Button>
             </div>
           )}
         </div>
 
-        {activeSlide !== 1 && (
+        {activeSlide !== 2 && (
           <div className={`mt-12 md:mt-16 max-w-4xl mx-auto transition-all duration-700 delay-400 ${isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
-            <SearchBar />
+            <SearchBar onSearch={handleSearch} />
           </div>
         )}
       </div>
