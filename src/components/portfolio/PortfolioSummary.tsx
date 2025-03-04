@@ -29,7 +29,7 @@ const PortfolioSummary = ({ portfolio }: PortfolioSummaryProps) => {
       
       <div className="bg-card rounded-xl p-5 border shadow-sm space-y-2 animate-fade-in" style={{ animationDelay: "100ms" }}>
         <div className="flex justify-between items-center">
-          <h3 className="text-sm font-medium text-muted-foreground">Current Value</h3>
+          <h3 className="text-sm font-medium text-muted-foreground">Revenue Generated</h3>
           <DollarSign className="h-5 w-5 text-accent/70" />
         </div>
         <p className="text-2xl font-semibold">{formatCurrency(currentValuation)}</p>

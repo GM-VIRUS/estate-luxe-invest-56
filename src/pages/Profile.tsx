@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { Link } from "react-router-dom";
@@ -17,6 +17,7 @@ const Profile = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [isModified, setIsModified] = useState(false);
   
   // Mock user data - in a real app, this would come from authentication context/API
   const [userData, setUserData] = useState({
@@ -24,9 +25,20 @@ const Profile = () => {
     email: "alex.johnson@example.com",
     walletAddress: "0x71C7656EC7ab88b098defB751B7401B5f6d8976F",
     phone: "+1 (555) 123-4567",
-    bio: "Passionate about real estate investments and blockchain technology.",
     profileImage: "/placeholder.svg"
   });
+
+  // Store original data to check for modifications
+  const [originalData, setOriginalData] = useState({...userData});
+
+  // Check if the form has been modified
+  useEffect(() => {
+    const isChanged = 
+      userData.name !== originalData.name || 
+      userData.phone !== originalData.phone;
+    
+    setIsModified(isChanged);
+  }, [userData, originalData]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -43,6 +55,9 @@ const Profile = () => {
     // Simulate API call
     setTimeout(() => {
       setIsLoading(false);
+      // Update original data after save
+      setOriginalData({...userData});
+      setIsModified(false);
       toast({
         title: "Profile updated",
         description: "Your profile information has been successfully updated.",
@@ -76,9 +91,6 @@ const Profile = () => {
       <div className="flex flex-col gap-8 max-w-3xl mx-auto">
         <div className="space-y-2">
           <h1 className="text-3xl font-bold">My Profile</h1>
-          <p className="text-muted-foreground">
-            Manage your personal information and account settings
-          </p>
         </div>
         
         <form onSubmit={handleProfileUpdate} className="space-y-8">
@@ -91,7 +103,6 @@ const Profile = () => {
                 />
                 <div className="space-y-1">
                   <CardTitle>{userData.name}</CardTitle>
-                  <CardDescription>Update your personal information</CardDescription>
                 </div>
               </div>
             </CardHeader>
@@ -148,18 +159,6 @@ const Profile = () => {
                   </p>
                 </div>
               </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="bio">Bio</Label>
-                <Textarea 
-                  id="bio" 
-                  name="bio"
-                  value={userData.bio} 
-                  onChange={handleInputChange}
-                  rows={4}
-                  className="resize-none transition-all duration-200 focus:ring-2 focus:ring-accent"
-                />
-              </div>
             </CardContent>
             
             <CardFooter className="flex justify-between border-t pt-6">
@@ -180,7 +179,7 @@ const Profile = () => {
               
               <Button 
                 type="submit" 
-                disabled={isLoading} 
+                disabled={isLoading || !isModified} 
                 className="relative transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
               >
                 {isLoading ? (
