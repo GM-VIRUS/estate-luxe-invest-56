@@ -53,3 +53,29 @@ export interface PropertyDetails extends Property {
   latitude: number;
   longitude: number;
 }
+
+// Portfolio-related types
+export interface PortfolioItem {
+  propertyId: string;
+  tokens: number;
+  initialInvestment: number;
+  currentValuation: number;
+  purchaseDate: string;
+  transactions: PortfolioTransaction[];
+}
+
+export interface PortfolioTransaction {
+  id: string;
+  date: string;
+  type: "Buy" | "Sell";
+  tokens: number;
+  price: number;
+  total: number;
+}
+
+export interface UserPortfolio {
+  items: PortfolioItem[];
+  totalInvestment: number;
+  currentValuation: number;
+  overallROI: number;
+}
