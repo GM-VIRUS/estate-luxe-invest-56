@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -293,7 +294,7 @@ const TransactionHistory = () => {
           </Button>
           
           <Select onValueChange={(value) => handleExport(value as "csv" | "pdf")}>
-            <SelectTrigger className="w-[140px]" size="sm">
+            <SelectTrigger className="w-[140px]">
               <SelectValue placeholder="Export" />
             </SelectTrigger>
             <SelectContent>
