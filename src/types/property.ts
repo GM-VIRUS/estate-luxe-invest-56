@@ -67,7 +67,7 @@ export interface PortfolioItem {
 export interface PortfolioTransaction {
   id: string;
   date: string;
-  type: "Buy" | "Sell";
+  type: "Buy" | "Sell" | "Staking" | "Reward";
   tokens: number;
   price: number;
   total: number;

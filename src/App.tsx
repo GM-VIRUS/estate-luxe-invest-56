@@ -15,6 +15,7 @@ import Signup from "./pages/Signup";
 import FAQ from "./pages/FAQ";
 import Support from "./pages/Support";
 import Portfolio from "./pages/Portfolio";
+import TransactionHistory from "./pages/TransactionHistory";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 
@@ -41,6 +42,7 @@ const App = () => (
                 <Route path="/faq" element={<FAQ />} />
                 <Route path="/support" element={<Support />} />
                 <Route path="/portfolio" element={<Portfolio />} />
+                <Route path="/transactions" element={<TransactionHistory />} />
                 <Route path="/profile" element={<Profile />} />
               </Route>
               

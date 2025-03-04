@@ -25,7 +25,8 @@ import {
   ExternalLink, 
   TrendingUp, 
   Clock, 
-  Coins
+  Coins,
+  FileText
 } from "lucide-react";
 import TransactionHistory from "./TransactionHistory";
 
@@ -89,7 +90,7 @@ const PortfolioCard = ({ item, property }: PortfolioCardProps) => {
                 <p className="text-sm font-medium">{formatCurrency(item.initialInvestment)}</p>
               </div>
               <div className="space-y-1">
-                <p className="text-xs text-muted-foreground">Current Value</p>
+                <p className="text-xs text-muted-foreground">Revenue Generated</p>
                 <p className="text-sm font-medium">{formatCurrency(item.currentValuation)}</p>
               </div>
               <div className="space-y-1">
@@ -110,6 +111,14 @@ const PortfolioCard = ({ item, property }: PortfolioCardProps) => {
                 <ExternalLink className="h-4 w-4 ml-1" />
               </Link>
             </Button>
+            
+            <Button asChild variant="outline" size="sm" className="flex-1">
+              <Link to={`/transactions`} className="transition-colors hover:text-accent">
+                <FileText className="h-4 w-4 mr-1" />
+                Transactions
+              </Link>
+            </Button>
+            
             <Collapsible
               open={isOpen}
               onOpenChange={setIsOpen}

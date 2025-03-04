@@ -65,6 +65,63 @@ const portfolioItems: PortfolioItem[] = [
   }
 ];
 
+// All transactions across all portfolio items
+export const getUserTransactions = async (): Promise<PortfolioTransaction[]> => {
+  // In a real app, this would fetch from an API
+  // Simulate API delay
+  await new Promise(resolve => setTimeout(resolve, 800));
+  
+  // Collect all transactions from all portfolio items
+  const allTransactions: PortfolioTransaction[] = [];
+  
+  // Get existing transactions
+  portfolioItems.forEach(item => {
+    item.transactions.forEach(tx => {
+      allTransactions.push(tx);
+    });
+  });
+  
+  // Add some additional mock transaction types for the demo
+  const additionalTransactions: PortfolioTransaction[] = [
+    {
+      id: "tx-005",
+      date: "2023-11-15",
+      type: "Staking",
+      tokens: 5,
+      price: 0,
+      total: 250
+    },
+    {
+      id: "tx-006",
+      date: "2023-12-10",
+      type: "Reward",
+      tokens: 2,
+      price: 0,
+      total: 100
+    },
+    {
+      id: "tx-007",
+      date: "2024-01-05",
+      type: "Staking",
+      tokens: 8,
+      price: 0,
+      total: 400
+    },
+    {
+      id: "tx-008",
+      date: "2024-02-20",
+      type: "Reward",
+      tokens: 1,
+      price: 0,
+      total: 50
+    }
+  ];
+  
+  return [...allTransactions, ...additionalTransactions].sort((a, b) => {
+    return new Date(b.date).getTime() - new Date(a.date).getTime();
+  });
+};
+
 export const getUserPortfolio = (): UserPortfolio => {
   const portfolioWithDetails = portfolioItems.map(item => {
     const property = properties.find(p => p.id === item.propertyId);
