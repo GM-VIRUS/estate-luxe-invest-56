@@ -12,6 +12,7 @@ import SectionHeading from "@/components/ui/section-heading";
 import ProfileHeader from "@/components/profile/ProfileHeader";
 import ProfileForm from "@/components/profile/ProfileForm";
 import PasswordChangeForm from "@/components/profile/PasswordChangeForm";
+import { toast } from "sonner";
 
 const Profile = () => {
   const { user } = useAuth();
@@ -36,8 +37,10 @@ const Profile = () => {
     console.log("User auth status:", user ? "Logged in" : "Not logged in");
     console.log("User token available:", user?.token ? "Yes" : "No");
     
-    // We don't need to call fetchUserDetails here as it's already called in the hook
-    // This is just to log when the component mounts
+    if (!user?.token) {
+      toast.warning("You need to login to view your profile");
+      console.warn("No auth token available, profile data will be empty");
+    }
   }, [user]);
 
   // Add debug information about fetching status
@@ -46,10 +49,28 @@ const Profile = () => {
     console.log("Current user data:", userData);
   }, [isFetching, userData]);
 
+  // Add force refresh button in development
+  const handleForceRefresh = () => {
+    console.log("Force refreshing user data");
+    fetchUserDetails();
+    toast.info("Refreshing profile data...");
+  };
+
   if (isFetching) {
     return (
-      <div className="flex justify-center items-center min-h-[60vh]">
-        <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+      <div className="container mx-auto px-4 py-8 md:py-16 animate-fade-in">
+        <div className="mb-6">
+          <BackButton to="/" label="Back to Home" />
+        </div>
+        
+        <div className="flex flex-col gap-8 max-w-4xl mx-auto">
+          <h1 className="text-3xl font-bold">My Profile</h1>
+          
+          <div className="flex justify-center items-center min-h-[60vh]">
+            <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+            <span className="ml-3 text-lg">Loading your profile...</span>
+          </div>
+        </div>
       </div>
     );
   }
@@ -63,20 +84,32 @@ const Profile = () => {
       <div className="flex flex-col gap-8 max-w-4xl mx-auto">
         <div className="flex justify-between items-center">
           <h1 className="text-3xl font-bold">My Profile</h1>
-          <Button 
-            onClick={toggleEditMode}
-            variant={isEditMode ? "outline" : "ghost"}
-            className="flex items-center gap-2"
-          >
-            {isEditMode ? (
-              <>Cancel</>
-            ) : (
-              <>
-                <PenLine className="h-4 w-4" />
-                Edit Profile
-              </>
+          <div className="flex gap-2">
+            {process.env.NODE_ENV === 'development' && (
+              <Button
+                onClick={handleForceRefresh}
+                variant="outline"
+                size="sm"
+                className="mr-2"
+              >
+                Refresh Data
+              </Button>
             )}
-          </Button>
+            <Button 
+              onClick={toggleEditMode}
+              variant={isEditMode ? "outline" : "ghost"}
+              className="flex items-center gap-2"
+            >
+              {isEditMode ? (
+                <>Cancel</>
+              ) : (
+                <>
+                  <PenLine className="h-4 w-4" />
+                  Edit Profile
+                </>
+              )}
+            </Button>
+          </div>
         </div>
         
         <Card className="w-full overflow-hidden">

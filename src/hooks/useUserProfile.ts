@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
@@ -51,14 +52,12 @@ export function useUserProfile() {
 
   const [originalData, setOriginalData] = useState<UserDetails>({...userData});
 
+  // This effect will run when the component mounts and whenever the user token changes
   useEffect(() => {
     console.log("useUserProfile hook initialized, checking for token");
-    console.log("User object:", user ? "exists" : "does not exist");
-    console.log("User token:", user?.token ? "exists" : "does not exist");
     
     if (user?.token) {
       console.log("User token available:", user.token.substring(0, 10) + "...");
-      console.log("Initiating API call to fetch user details");
       fetchUserDetails();
     } else {
       console.log("No user token available, skipping API call");
@@ -66,6 +65,7 @@ export function useUserProfile() {
     }
   }, [user?.token]);
 
+  // This effect tracks changes between current and original data
   useEffect(() => {
     if (!isFetching) {
       const isChanged = 
@@ -103,6 +103,8 @@ export function useUserProfile() {
       
       if (response.result === 1 && response.data) {
         const userInfo = response.data;
+        console.log("Raw user info from API:", userInfo);
+        
         const details: UserDetails = {
           firstName: userInfo.firstName || "",
           lastName: userInfo.lastName || "",
@@ -122,7 +124,7 @@ export function useUserProfile() {
           stateCode: userInfo.stateCode || ""
         };
 
-        console.log("Setting user data:", details);
+        console.log("Processed user data:", details);
         setUserData(details);
         setOriginalData({...details});
       } else {

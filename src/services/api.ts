@@ -30,20 +30,31 @@ export async function apiRequest<T>(
       ...options,
       headers: {
         'Content-Type': 'application/json',
+        'Accept': 'application/json',
         ...options.headers,
       },
     });
 
     console.log(`Response status:`, response.status);
     
+    // For debugging
+    const responseText = await response.text();
+    console.log(`Raw response:`, responseText);
+    
+    let data: ApiResponse<T>;
+    try {
+      data = JSON.parse(responseText);
+    } catch (e) {
+      console.error("Failed to parse response as JSON:", e);
+      throw new Error(`Invalid JSON response from server: ${responseText.substring(0, 100)}...`);
+    }
+    
     if (!response.ok) {
-      const errorData = await response.json();
-      console.error(`API request failed:`, errorData);
-      throw new Error(errorData.message || errorData.msg || `API request failed with status ${response.status}`);
+      console.error(`API request failed:`, data);
+      throw new Error(data.message || data.msg || `API request failed with status ${response.status}`);
     }
 
-    const data = await response.json();
-    console.log(`API response from ${endpoint}:`, data);
+    console.log(`Parsed API response from ${endpoint}:`, data);
     return data;
   } catch (error) {
     console.error(`API request error:`, error);
@@ -64,10 +75,14 @@ export const userApi = {
     console.log("Calling getUserDetails API with token:", token.substring(0, 10) + "...");
     
     try {
+      // Ensure token is properly formatted
+      const formattedToken = token.startsWith('Bearer ') ? token : `Bearer ${token}`;
+      console.log("Using formatted token:", formattedToken.substring(0, 16) + "...");
+      
       return await apiRequest(`${API_BASE_URL.USER}/userDetails`, {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${token}`
+          'Authorization': formattedToken
         }
       });
     } catch (error) {
