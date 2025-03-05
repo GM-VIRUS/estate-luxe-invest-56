@@ -52,7 +52,7 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
             </div>
           )}
           <div className="bg-black/50 backdrop-blur-sm text-white text-xs font-medium px-3 py-1.5 rounded-full">
-            {property.tags?.[0] || property.propertyType}
+            {property.propertyType}
           </div>
         </div>
       </div>
@@ -107,9 +107,9 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
           </div>
 
           <div className="flex flex-wrap gap-2 mt-3">
-            {property.amenities?.slice(0, 3).map((tag, index) => (
+            {property.amenities?.slice(0, 3).map((amenity, index) => (
               <Badge key={index} variant="outline" className="bg-accent/5 text-accent border-accent/20">
-                {tag}
+                {amenity}
               </Badge>
             ))}
           </div>
