@@ -1,3 +1,4 @@
+
 import { toast } from "sonner";
 
 const API_BASE_URL = {
@@ -102,14 +103,25 @@ export const userApi = {
     });
   },
   
-  changePassword: async (token: string, passwordData: any): Promise<ApiResponse<any>> => {
-    return apiRequest(`${API_BASE_URL.USER}/changePassword`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify(passwordData)
-    });
+  changePassword: async (token: string, passwordData: {oldPassword: string, newPassword: string}): Promise<ApiResponse<any>> => {
+    console.log("Calling changePassword API with token:", token.substring(0, 10) + "...");
+    console.log("Password data:", { oldPassword: "******", newPassword: "******" });
+    
+    try {
+      // Ensure token is properly formatted
+      const formattedToken = token.startsWith('Bearer ') ? token : `Bearer ${token}`;
+      
+      return await apiRequest(`${API_BASE_URL.USER}/changePassword`, {
+        method: 'POST',
+        headers: {
+          'Authorization': formattedToken
+        },
+        body: JSON.stringify(passwordData)
+      });
+    } catch (error) {
+      console.error("changePassword API error:", error);
+      throw error;
+    }
   }
 };
 

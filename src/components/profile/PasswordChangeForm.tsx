@@ -1,14 +1,16 @@
 
 import { useState } from "react";
-import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
+import { userApi } from "@/services/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { DialogClose } from "@/components/ui/dialog";
 import { Eye, EyeOff, Check, X, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 const PasswordChangeForm = () => {
-  const { toast } = useToast();
+  const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [step, setStep] = useState<'verify' | 'change'>('verify');
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
@@ -52,26 +54,12 @@ const PasswordChangeForm = () => {
       return;
     }
 
-    setIsLoading(true);
-    
-    // Simulate API verification
-    setTimeout(() => {
-      // In a real app, we'd verify against the backend
-      // For this demo, we'll just accept "password" as the valid password
-      if (formData.currentPassword === "password") {
-        setStep('change');
-        setIsLoading(false);
-      } else {
-        setErrors(prev => ({
-          ...prev,
-          currentPassword: 'Incorrect password'
-        }));
-        setIsLoading(false);
-      }
-    }, 1000);
+    // In a real implementation, we would verify the password with the backend
+    // For now, we'll just move to the next step - the actual verification will happen on submission
+    setStep('change');
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // Validation
@@ -104,28 +92,53 @@ const PasswordChangeForm = () => {
       return;
     }
     
+    if (!user?.token) {
+      toast.error("You must be logged in to change your password");
+      return;
+    }
+    
     setIsLoading(true);
     
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      // Call the API to change the password
+      const response = await userApi.changePassword(user.token, {
+        oldPassword: formData.currentPassword,
+        newPassword: formData.newPassword
+      });
+      
+      console.log("Password change response:", response);
+      
+      if (response.result === 1) {
+        toast.success(response.msg || "Password updated successfully!");
+        
+        // Reset form
+        setFormData({
+          currentPassword: '',
+          newPassword: '',
+          confirmPassword: ''
+        });
+        setStep('verify');
+        
+        // Set flag to close dialog
+        setShouldCloseDialog(true);
+      } else {
+        toast.error(response.msg || "Failed to update password");
+        
+        // Go back to the first step if the current password was incorrect
+        setStep('verify');
+        setErrors(prev => ({
+          ...prev,
+          currentPassword: 'Incorrect password'
+        }));
+      }
+    } catch (error) {
+      console.error("Password change error:", error);
+      
+      // Show a generic error message
+      toast.error("Failed to update password. Please try again.");
+    } finally {
       setIsLoading(false);
-      
-      toast({
-        title: "Password updated",
-        description: "Your password has been successfully changed.",
-      });
-      
-      // Reset form
-      setFormData({
-        currentPassword: '',
-        newPassword: '',
-        confirmPassword: ''
-      });
-      setStep('verify');
-      
-      // Set flag to close dialog
-      setShouldCloseDialog(true);
-    }, 1500);
+    }
   };
 
   return (
@@ -165,9 +178,6 @@ const PasswordChangeForm = () => {
                 {errors.currentPassword}
               </p>
             )}
-            <p className="text-xs text-muted-foreground">
-              Hint for demo: the current password is "password"
-            </p>
           </div>
           
           <div className="flex justify-end space-x-2">
