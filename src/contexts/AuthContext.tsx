@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { toast } from 'sonner';
 
@@ -7,6 +6,8 @@ interface User {
   profileImage: string;
   email?: string;
   token?: string;
+  firstName?: string;
+  lastName?: string;
 }
 
 interface AuthContextType {
@@ -14,6 +15,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   login: (walletAddress: string) => void;
   emailLogin: (email: string, password: string, rememberMe: boolean) => Promise<boolean>;
+  signup: (email: string, password: string, firstName: string, lastName: string) => Promise<boolean>;
   logout: () => void;
 }
 
@@ -22,6 +24,7 @@ const defaultContext: AuthContextType = {
   isAuthenticated: false,
   login: () => {},
   emailLogin: async () => false,
+  signup: async () => false,
   logout: () => {},
 };
 
@@ -37,7 +40,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
 
-  // Check for existing session on mount
   useEffect(() => {
     const storedUser = localStorage.getItem('estateToken_user');
     if (storedUser) {
@@ -52,16 +54,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   }, []);
 
-  // Listen for Metamask account changes
   useEffect(() => {
     if (typeof window.ethereum !== 'undefined') {
       const handleAccountsChanged = (accounts: string[]) => {
         if (accounts.length === 0) {
-          // User disconnected their wallet
           logout();
           toast.error("Wallet disconnected. You've been logged out.");
         } else if (user && accounts[0] !== user.walletAddress) {
-          // User switched to a different account
           logout();
           toast.error("Wallet account changed. Please log in again.");
         }
@@ -103,7 +102,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
       const data = await response.json();
       
-      // Create a user object with the response data
       const newUser = {
         email,
         profileImage: '/placeholder.svg',
@@ -123,6 +121,32 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
+  const signup = async (email: string, password: string, firstName: string, lastName: string): Promise<boolean> => {
+    try {
+      const response = await fetch('https://dev-user-api.investech.global/api/v2/user/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password, firstName, lastName }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.msg || 'Signup failed');
+      }
+
+      const data = await response.json();
+      
+      toast.success(data.msg || 'Account created successfully! Please log in.');
+      return true;
+    } catch (error) {
+      console.error('Signup error:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to create account. Please try again.');
+      return false;
+    }
+  };
+
   const logout = () => {
     setUser(null);
     setIsAuthenticated(false);
@@ -136,6 +160,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         isAuthenticated,
         login,
         emailLogin,
+        signup,
         logout,
       }}
     >
