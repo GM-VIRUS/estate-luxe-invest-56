@@ -16,6 +16,7 @@ interface AuthContextType {
   login: (walletAddress: string) => void;
   emailLogin: (email: string, password: string, rememberMe: boolean) => Promise<boolean>;
   signup: (email: string, password: string, firstName: string, lastName: string) => Promise<boolean>;
+  verifyEmail: (email: string, otp: number) => Promise<boolean>;
   logout: () => void;
 }
 
@@ -25,6 +26,7 @@ const defaultContext: AuthContextType = {
   login: () => {},
   emailLogin: async () => false,
   signup: async () => false,
+  verifyEmail: async () => false,
   logout: () => {},
 };
 
@@ -147,6 +149,31 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
+  const verifyEmail = async (email: string, otp: number): Promise<boolean> => {
+    try {
+      const response = await fetch('https://dev-user-api.investech.global/api/v2/user/emailVerification', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, otp }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.msg || 'Email verification failed');
+      }
+
+      const data = await response.json();
+      toast.success(data.msg || 'Email verified successfully!');
+      return true;
+    } catch (error) {
+      console.error('Email verification error:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to verify email. Please try again.');
+      return false;
+    }
+  };
+
   const logout = () => {
     setUser(null);
     setIsAuthenticated(false);
@@ -161,6 +188,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         login,
         emailLogin,
         signup,
+        verifyEmail,
         logout,
       }}
     >
