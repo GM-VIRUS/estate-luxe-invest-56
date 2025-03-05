@@ -16,7 +16,7 @@ const Properties = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState("all");
   const { savedProperties } = useSavedProperties();
-  const { data: properties, isLoading, error } = usePropertyList();
+  const { properties, isLoading, error } = usePropertyList();
   
   const hasSavedProperties = savedProperties.length > 0;
 

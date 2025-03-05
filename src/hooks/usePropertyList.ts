@@ -1,5 +1,12 @@
 
 import { usePropertyList as usePropertyData } from "./usePropertyData";
+import { Property } from "@/types/property";
+import { QueryObserverResult, RefetchOptions } from "@tanstack/react-query";
 
-// This is a wrapper to maintain backward compatibility
-export const usePropertyList = usePropertyData;
+// Re-export with the correct return type for better type safety
+export const usePropertyList = (): {
+  properties: Property[];
+  isLoading: boolean;
+  error: Error | null;
+  refetch: (options?: RefetchOptions) => Promise<QueryObserverResult<Property[], Error>>;
+} => usePropertyData();

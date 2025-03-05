@@ -14,7 +14,7 @@ import { Badge } from "@/components/ui/badge";
 
 const PropertyDetails = () => {
   const { id } = useParams<{ id: string }>();
-  const { data: properties, isLoading: isLoadingProperties } = usePropertyList();
+  const { properties, isLoading: isLoadingProperties } = usePropertyList();
   const [property, setProperty] = useState(undefined);
   const [activeImage, setActiveImage] = useState(0);
   const [isLoaded, setIsLoaded] = useState(false);

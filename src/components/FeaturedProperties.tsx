@@ -8,7 +8,7 @@ import { usePropertyList } from "../hooks/usePropertyList";
 
 const FeaturedProperties = () => {
   const [isLoaded, setIsLoaded] = useState(false);
-  const { data: properties, isLoading, error } = usePropertyList();
+  const { properties, isLoading, error } = usePropertyList();
 
   useEffect(() => {
     setIsLoaded(true);

@@ -13,7 +13,7 @@ import { usePropertyList } from "../hooks/usePropertyList";
 
 const Index = () => {
   const [isLoaded, setIsLoaded] = useState(false);
-  const { data: properties, isLoading } = usePropertyList();
+  const { properties, isLoading } = usePropertyList();
 
   useEffect(() => {
     setIsLoaded(true);
