@@ -4,15 +4,18 @@ import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import PropertyGrid from "./PropertyGrid";
-import { getFeaturedProperties } from "../utils/propertyData";
+import { usePropertyList } from "../hooks/usePropertyList";
 
 const FeaturedProperties = () => {
   const [isLoaded, setIsLoaded] = useState(false);
-  const featuredProperties = getFeaturedProperties();
+  const { data: properties, isLoading, error } = usePropertyList();
 
   useEffect(() => {
     setIsLoaded(true);
   }, []);
+
+  // Filter trending properties
+  const featuredProperties = properties?.filter(prop => prop.featured) || [];
 
   return (
     <section className="py-20 bg-secondary/50">
@@ -49,7 +52,16 @@ const FeaturedProperties = () => {
           </Link>
         </div>
 
-        <PropertyGrid properties={featuredProperties} />
+        {error ? (
+          <div className="text-center p-8 bg-red-50 rounded-lg">
+            <p className="text-red-500">Failed to load properties. Please try again later.</p>
+          </div>
+        ) : (
+          <PropertyGrid 
+            properties={featuredProperties} 
+            isLoading={isLoading}
+          />
+        )}
       </div>
     </section>
   );

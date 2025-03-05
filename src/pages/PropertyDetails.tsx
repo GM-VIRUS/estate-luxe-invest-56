@@ -1,33 +1,37 @@
+
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { ChevronLeft, MapPin, DollarSign, CalendarDays, LineChart, Share2, Heart, ArrowRight, BarChart3, BadgePercent, Building, Home, Clipboard } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { getPropertyDetails } from "../utils/propertyData";
 import { formatCurrency, formatDate } from "../utils/formatters";
 import { useSavedProperties } from "../contexts/SavedPropertiesContext";
 import { shareProperty } from "../utils/shareUtils";
+import { usePropertyList } from "../hooks/usePropertyList";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
 
 const PropertyDetails = () => {
   const { id } = useParams<{ id: string }>();
-  const [property, setProperty] = useState(id ? getPropertyDetails(id) : undefined);
+  const { data: properties, isLoading: isLoadingProperties } = usePropertyList();
+  const [property, setProperty] = useState(undefined);
   const [activeImage, setActiveImage] = useState(0);
   const [isLoaded, setIsLoaded] = useState(false);
   const { saveProperty, isSaved } = useSavedProperties();
   const [isSharing, setIsSharing] = useState(false);
 
   useEffect(() => {
-    if (id) {
-      const propertyData = getPropertyDetails(id);
-      setProperty(propertyData);
+    if (id && properties) {
+      const foundProperty = properties.find(p => p.id === id);
+      setProperty(foundProperty);
     }
     
     setIsLoaded(true);
     
     // Scroll to top on page load
     window.scrollTo(0, 0);
-  }, [id]);
+  }, [id, properties]);
 
   const handleSaveProperty = () => {
     if (property) {
@@ -47,7 +51,41 @@ const PropertyDetails = () => {
     }
   };
 
-  if (!property) {
+  if (isLoadingProperties) {
+    return (
+      <div className="min-h-screen">
+        <Navbar />
+        <div className="pt-24 pb-16 px-4">
+          <div className="container mx-auto">
+            <div className="mb-6">
+              <Skeleton className="h-6 w-32" />
+            </div>
+            <div className="flex flex-col md:flex-row justify-between items-start gap-4 mb-8">
+              <div className="w-full md:w-2/3">
+                <Skeleton className="h-10 w-3/4 mb-2" />
+                <Skeleton className="h-6 w-1/2" />
+              </div>
+              <div className="flex gap-2">
+                <Skeleton className="h-10 w-24 rounded-full" />
+                <Skeleton className="h-10 w-24 rounded-full" />
+                <Skeleton className="h-10 w-32 rounded-full" />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-12">
+              <Skeleton className="md:col-span-2 h-[400px] rounded-xl" />
+              <div className="grid grid-cols-2 md:grid-cols-1 gap-4">
+                <Skeleton className="h-[190px] rounded-xl" />
+                <Skeleton className="h-[190px] rounded-xl" />
+              </div>
+            </div>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (!property && !isLoadingProperties) {
     return (
       <div className="min-h-screen flex flex-col">
         <Navbar />
@@ -65,6 +103,14 @@ const PropertyDetails = () => {
     );
   }
 
+  if (!property) {
+    return null;
+  }
+
+  const progressPercentage = Math.round(
+    ((property.totalSupply - property.availableTokens) / property.totalSupply) * 100
+  );
+
   return (
     <div className={`min-h-screen transition-opacity duration-500 ${isLoaded ? "opacity-100" : "opacity-0"}`}>
       <Navbar />
@@ -74,7 +120,7 @@ const PropertyDetails = () => {
           {/* Breadcrumbs */}
           <div className="mb-6">
             <Link
-              to="/"
+              to="/properties"
               className="inline-flex items-center text-sm text-muted-foreground hover:text-accent transition-colors"
             >
               <ChevronLeft className="h-4 w-4 mr-1" />
@@ -89,7 +135,7 @@ const PropertyDetails = () => {
               <div className="flex items-center text-muted-foreground">
                 <MapPin className="h-5 w-5 mr-1" />
                 <span>
-                  {property.location}, {property.city}, {property.state}
+                  {property.city}, {property.state}, {property.country}
                 </span>
               </div>
             </div>
@@ -168,48 +214,32 @@ const PropertyDetails = () => {
                   
                   <div className="flex flex-col items-center justify-center p-4 bg-background rounded-lg">
                     <Building className="h-6 w-6 text-accent mb-2" />
-                    <span className="text-sm text-muted-foreground">Size</span>
-                    <span className="font-medium">{property.squareFeet} sq ft</span>
+                    <span className="text-sm text-muted-foreground">Location</span>
+                    <span className="font-medium">{property.city}</span>
                   </div>
                   
                   <div className="flex flex-col items-center justify-center p-4 bg-background rounded-lg">
                     <CalendarDays className="h-6 w-6 text-accent mb-2" />
-                    <span className="text-sm text-muted-foreground">Year Built</span>
-                    <span className="font-medium">{property.yearBuilt}</span>
+                    <span className="text-sm text-muted-foreground">Total Tokens</span>
+                    <span className="font-medium">{property.totalSupply}</span>
                   </div>
                   
                   <div className="flex flex-col items-center justify-center p-4 bg-background rounded-lg">
                     <BadgePercent className="h-6 w-6 text-accent mb-2" />
-                    <span className="text-sm text-muted-foreground">Rental Yield</span>
-                    <span className="font-medium">{property.rentalYield}%</span>
+                    <span className="text-sm text-muted-foreground">Annual ROI</span>
+                    <span className="font-medium">{property.roi}%</span>
                   </div>
                 </div>
               </div>
 
-              {/* Amenities Section */}
+              {/* Amenities/Tags Section */}
               <div className="bg-card rounded-xl shadow-sm border p-6 mb-8">
-                <h2 className="text-2xl font-semibold mb-4">Amenities</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {property.amenities.map((amenity, index) => (
-                    <div key={index} className="flex items-center p-3 bg-background rounded-lg">
-                      <div className="w-2 h-2 bg-accent rounded-full mr-3"></div>
-                      <span>{amenity}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Property History */}
-              <div className="bg-card rounded-xl shadow-sm border p-6 mb-8">
-                <h2 className="text-2xl font-semibold mb-4">Ownership History</h2>
-                <div className="space-y-6">
-                  {property.ownershipHistory.map((event, index) => (
-                    <div key={index} className="relative pl-6 border-l-2 border-accent/30">
-                      <div className="absolute left-[-8px] top-0 w-4 h-4 bg-accent rounded-full"></div>
-                      <p className="text-sm text-muted-foreground">{formatDate(event.date)}</p>
-                      <h4 className="font-medium">{event.event}</h4>
-                      <p>{event.description}</p>
-                    </div>
+                <h2 className="text-2xl font-semibold mb-4">Features</h2>
+                <div className="flex flex-wrap gap-3">
+                  {property.amenities.map((tag, index) => (
+                    <Badge key={index} variant="outline" className="py-2 px-4 text-sm bg-accent/5 text-accent border-accent/20">
+                      {tag}
+                    </Badge>
                   ))}
                 </div>
               </div>
@@ -224,7 +254,7 @@ const PropertyDetails = () => {
                   </div>
                 </div>
                 <p className="text-muted-foreground">
-                  {property.location}, {property.city}, {property.state} {property.zipCode}
+                  {property.city}, {property.state}, {property.country}
                 </p>
               </div>
             </div>
@@ -236,12 +266,12 @@ const PropertyDetails = () => {
                 
                 <div className="space-y-4 mb-6">
                   <div className="flex justify-between items-center">
-                    <span className="text-muted-foreground">Property Value</span>
-                    <span className="font-medium">{formatCurrency(property.totalValue)}</span>
+                    <span className="text-muted-foreground">Token Price</span>
+                    <span className="font-medium">{formatCurrency(property.pricePerToken)}</span>
                   </div>
                   
                   <div className="flex justify-between items-center">
-                    <span className="text-muted-foreground">Price per Token</span>
+                    <span className="text-muted-foreground">Min Investment</span>
                     <span className="font-medium">{formatCurrency(property.pricePerToken)}</span>
                   </div>
                   
@@ -251,28 +281,21 @@ const PropertyDetails = () => {
                   </div>
                   
                   <div className="flex justify-between items-center">
-                    <span className="text-muted-foreground">Available Tokens</span>
+                    <span className="text-muted-foreground">Available</span>
                     <span className="font-medium text-accent">{property.availableTokens} tokens</span>
-                  </div>
-                  
-                  <div className="flex justify-between items-center">
-                    <span className="text-muted-foreground">Min. Investment</span>
-                    <span className="font-medium">{formatCurrency(property.investmentDetails.minimumInvestment)}</span>
                   </div>
                   
                   <div className="pt-4 border-t">
                     <div className="flex justify-between items-center mb-2">
                       <span className="font-medium">Funding Progress</span>
                       <span className="text-sm text-accent font-medium">
-                        {Math.round(((property.totalSupply - property.availableTokens) / property.totalSupply) * 100)}%
+                        {progressPercentage}%
                       </span>
                     </div>
                     <div className="w-full h-2 bg-secondary rounded-full overflow-hidden">
                       <div 
                         className="h-full bg-accent rounded-full transition-all duration-1000 ease-out"
-                        style={{ 
-                          width: `${Math.round(((property.totalSupply - property.availableTokens) / property.totalSupply) * 100)}%` 
-                        }}
+                        style={{ width: `${progressPercentage}%` }}
                       />
                     </div>
                   </div>
@@ -286,20 +309,12 @@ const PropertyDetails = () => {
                   
                   <div className="grid grid-cols-2 gap-4 p-4 bg-background rounded-lg">
                     <div>
-                      <p className="text-sm text-muted-foreground">Projected ROI</p>
+                      <p className="text-sm text-muted-foreground">Annual ROI</p>
                       <p className="font-medium">{property.roi}%</p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Rental Yield</p>
+                      <p className="text-sm text-muted-foreground">Yearly Return</p>
                       <p className="font-medium">{property.rentalYield}%</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Appreciation</p>
-                      <p className="font-medium">{property.appreciationRate}%</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Holding Period</p>
-                      <p className="font-medium">{property.investmentDetails.holdingPeriod}</p>
                     </div>
                   </div>
                 </div>
@@ -312,31 +327,6 @@ const PropertyDetails = () => {
                 <p className="text-xs text-center text-muted-foreground">
                   By investing, you agree to our terms and conditions.
                 </p>
-              </div>
-
-              {/* Price History Card */}
-              <div className="bg-card rounded-xl shadow-sm border p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-xl font-semibold">Price History</h2>
-                  <LineChart className="h-5 w-5 text-accent" />
-                </div>
-                
-                <div className="space-y-3">
-                  {property.priceHistory.map((item, index) => (
-                    <div key={index} className="flex justify-between items-center p-2">
-                      <span className="text-sm text-muted-foreground">{formatDate(item.date)}</span>
-                      <span className={`font-medium ${
-                        index > 0 && item.price > property.priceHistory[index - 1].price
-                          ? "text-green-500"
-                          : index > 0 && item.price < property.priceHistory[index - 1].price
-                          ? "text-red-500"
-                          : ""
-                      }`}>
-                        {formatCurrency(item.price)}
-                      </span>
-                    </div>
-                  ))}
-                </div>
               </div>
             </div>
           </div>

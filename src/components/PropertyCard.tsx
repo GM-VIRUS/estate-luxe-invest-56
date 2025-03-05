@@ -6,6 +6,7 @@ import { MapPin, TrendingUp, Star, ExternalLink, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "../utils/formatters";
 import { useSavedProperties } from "../contexts/SavedPropertiesContext";
+import { Badge } from "@/components/ui/badge";
 
 interface PropertyCardProps {
   property: Property;
@@ -39,13 +40,20 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
           {property.featured && (
             <div className="bg-accent text-white text-xs font-semibold px-3 py-1.5 rounded-full flex items-center">
               <Star className="h-3 w-3 mr-1" />
-              Featured
+              Trending
             </div>
           )}
         </div>
         
-        <div className="absolute top-3 right-3 bg-black/50 backdrop-blur-sm text-white text-xs font-medium px-3 py-1.5 rounded-full">
-          {property.propertyType}
+        <div className="absolute top-3 right-3 flex gap-2">
+          {property.status === "Fully Funded" && (
+            <div className="bg-red-500 text-white text-xs font-medium px-3 py-1.5 rounded-full">
+              Sold Out
+            </div>
+          )}
+          <div className="bg-black/50 backdrop-blur-sm text-white text-xs font-medium px-3 py-1.5 rounded-full">
+            {property.tags?.[0] || property.propertyType}
+          </div>
         </div>
       </div>
 
@@ -81,11 +89,11 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
 
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
-              <p className="text-muted-foreground">Total Value</p>
-              <p className="font-medium">{formatCurrency(property.totalValue)}</p>
+              <p className="text-muted-foreground">Token Price</p>
+              <p className="font-medium">{formatCurrency(property.pricePerToken)}</p>
             </div>
             <div>
-              <p className="text-muted-foreground">Price Per Token</p>
+              <p className="text-muted-foreground">Min. Investment</p>
               <p className="font-medium">{formatCurrency(property.pricePerToken)}</p>
             </div>
             <div>
@@ -96,6 +104,14 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
               <p className="text-muted-foreground">Available</p>
               <p className="font-medium">{property.availableTokens} tokens</p>
             </div>
+          </div>
+
+          <div className="flex flex-wrap gap-2 mt-3">
+            {property.amenities?.slice(0, 3).map((tag, index) => (
+              <Badge key={index} variant="outline" className="bg-accent/5 text-accent border-accent/20">
+                {tag}
+              </Badge>
+            ))}
           </div>
         </div>
 

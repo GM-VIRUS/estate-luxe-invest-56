@@ -1,6 +1,5 @@
 
 import { useEffect, useState } from "react";
-import { properties } from "../utils/propertyData";
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -10,9 +9,11 @@ import PropertyGrid from "../components/PropertyGrid";
 import FeaturedProperties from "../components/FeaturedProperties";
 import HowItWorks from "../components/HowItWorks";
 import Footer from "../components/Footer";
+import { usePropertyList } from "../hooks/usePropertyList";
 
 const Index = () => {
   const [isLoaded, setIsLoaded] = useState(false);
+  const { data: properties, isLoading } = usePropertyList();
 
   useEffect(() => {
     setIsLoaded(true);
@@ -39,7 +40,8 @@ const Index = () => {
           </Link>
         </div>
         <PropertyGrid 
-          properties={properties.slice(0, 3)}
+          properties={properties?.slice(0, 3) || []}
+          isLoading={isLoading}
           title=""
           subtitle=""
         />
