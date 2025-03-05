@@ -1,7 +1,6 @@
-
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { userApi } from "@/services/api";
 
 interface UserDetails {
@@ -25,7 +24,6 @@ interface UserDetails {
 
 export function useUserProfile() {
   const { user, updateUserProfile } = useAuth();
-  const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [isModified, setIsModified] = useState(false);
@@ -102,46 +100,43 @@ export function useUserProfile() {
       console.log("User details API response:", response);
       
       if (response.result === 1 && response.data) {
-        const userInfo = response.data;
+        const userInfo = response.data.user; // Access the user object inside data
         console.log("Raw user info from API:", userInfo);
         
-        const details: UserDetails = {
-          firstName: userInfo.firstName || "",
-          lastName: userInfo.lastName || "",
-          email: userInfo.email || "",
-          phoneNumber: userInfo.mobileNumber?.toString() || "",
-          walletAddress: userInfo.walletAddress || null,
-          dob: userInfo.dob || "",
-          ssn: userInfo.ssn || "",
-          address: userInfo.address1 || "",
-          addressLine2: userInfo.address2 || "",
-          city: userInfo.city || "",
-          state: userInfo.state || "",
-          zipCode: userInfo.zipCode?.toString() || "",
-          country: userInfo.country || "",
-          profileImage: userInfo.profileImage || "/placeholder.svg",
-          countryCode: userInfo.countryCode || "+1",
-          stateCode: userInfo.stateCode || ""
-        };
-
-        console.log("Processed user data:", details);
-        setUserData(details);
-        setOriginalData({...details});
+        if (userInfo) {
+          const details: UserDetails = {
+            firstName: userInfo.firstName || "",
+            lastName: userInfo.lastName || "",
+            email: userInfo.email || "",
+            phoneNumber: userInfo.mobileNumber?.toString() || "",
+            walletAddress: userInfo.blockchainAddress || null,
+            dob: userInfo.dob ? new Date(userInfo.dob).toLocaleDateString() : "",
+            ssn: userInfo.ssn || "",
+            address: userInfo.address1 || "",
+            addressLine2: userInfo.address2 || "",
+            city: userInfo.city || "",
+            state: userInfo.state || "",
+            zipCode: userInfo.zipCode?.toString() || "",
+            country: userInfo.country || "",
+            profileImage: userInfo.profileImage || "/placeholder.svg",
+            countryCode: userInfo.countryCode || "+1",
+            stateCode: userInfo.stateCode || ""
+          };
+  
+          console.log("Processed user data:", details);
+          setUserData(details);
+          setOriginalData({...details});
+        } else {
+          console.warn("User info is missing in the API response");
+          toast.error("Incomplete user data received");
+        }
       } else {
         console.warn("API returned success but no data or unexpected format:", response);
-        toast({
-          title: "Warning",
-          description: "Unable to load complete user details",
-          variant: "default"
-        });
+        toast.error("Unable to load complete user details");
       }
     } catch (error) {
       console.error("Error fetching user details:", error);
-      toast({
-        title: "Error",
-        description: "Failed to load user details. Please try again later.",
-        variant: "destructive"
-      });
+      toast.error("Failed to load user details. Please try again later.");
     } finally {
       setIsFetching(false);
     }

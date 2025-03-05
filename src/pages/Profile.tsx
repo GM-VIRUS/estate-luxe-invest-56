@@ -2,13 +2,11 @@
 import { useEffect } from "react";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useAuth } from "@/contexts/AuthContext";
-import { Link } from "react-router-dom";
 import { PenLine } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import BackButton from "@/components/ui/back-button";
-import SectionHeading from "@/components/ui/section-heading";
 import ProfileHeader from "@/components/profile/ProfileHeader";
 import ProfileForm from "@/components/profile/ProfileForm";
 import PasswordChangeForm from "@/components/profile/PasswordChangeForm";
@@ -27,8 +25,7 @@ const Profile = () => {
     handleSelectChange,
     toggleEditMode,
     handleProfileUpdate,
-    handleProfileImageUpdate,
-    fetchUserDetails
+    handleProfileImageUpdate
   } = useUserProfile();
 
   // Add useEffect to log component lifecycle for debugging
@@ -48,13 +45,6 @@ const Profile = () => {
     console.log("Profile fetching status:", isFetching ? "Loading data" : "Finished loading");
     console.log("Current user data:", userData);
   }, [isFetching, userData]);
-
-  // Add force refresh button in development
-  const handleForceRefresh = () => {
-    console.log("Force refreshing user data");
-    fetchUserDetails();
-    toast.info("Refreshing profile data...");
-  };
 
   if (isFetching) {
     return (
@@ -85,16 +75,6 @@ const Profile = () => {
         <div className="flex justify-between items-center">
           <h1 className="text-3xl font-bold">My Profile</h1>
           <div className="flex gap-2">
-            {process.env.NODE_ENV === 'development' && (
-              <Button
-                onClick={handleForceRefresh}
-                variant="outline"
-                size="sm"
-                className="mr-2"
-              >
-                Refresh Data
-              </Button>
-            )}
             <Button 
               onClick={toggleEditMode}
               variant={isEditMode ? "outline" : "ghost"}
