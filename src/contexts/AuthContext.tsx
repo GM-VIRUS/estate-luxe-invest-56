@@ -5,12 +5,15 @@ import { toast } from 'sonner';
 interface User {
   walletAddress: string | null;
   profileImage: string;
+  email?: string;
+  token?: string;
 }
 
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   login: (walletAddress: string) => void;
+  emailLogin: (email: string, password: string, rememberMe: boolean) => Promise<boolean>;
   logout: () => void;
 }
 
@@ -18,6 +21,7 @@ const defaultContext: AuthContextType = {
   user: null,
   isAuthenticated: false,
   login: () => {},
+  emailLogin: async () => false,
   logout: () => {},
 };
 
@@ -82,6 +86,43 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     localStorage.setItem('estateToken_user', JSON.stringify(newUser));
   };
 
+  const emailLogin = async (email: string, password: string, rememberMe: boolean): Promise<boolean> => {
+    try {
+      const response = await fetch('https://dev-user-api.investech.global/api/v2/user/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password, rememberMe }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Login failed');
+      }
+
+      const data = await response.json();
+      
+      // Create a user object with the response data
+      const newUser = {
+        email,
+        profileImage: '/placeholder.svg',
+        walletAddress: null,
+        token: data.token || data.accessToken,
+      };
+
+      setUser(newUser);
+      setIsAuthenticated(true);
+      localStorage.setItem('estateToken_user', JSON.stringify(newUser));
+      
+      return true;
+    } catch (error) {
+      console.error('Login error:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to login. Please try again.');
+      return false;
+    }
+  };
+
   const logout = () => {
     setUser(null);
     setIsAuthenticated(false);
@@ -94,6 +135,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         user,
         isAuthenticated,
         login,
+        emailLogin,
         logout,
       }}
     >

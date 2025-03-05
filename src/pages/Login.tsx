@@ -14,13 +14,14 @@ import { useAuth } from "@/contexts/AuthContext";
 const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, emailLogin } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showWalletModal, setShowWalletModal] = useState(false);
   const [showForgotPasswordModal, setShowForgotPasswordModal] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
 
   // Redirect if user is already authenticated
   useEffect(() => {
@@ -33,13 +34,26 @@ const Login = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    if (!email || !password) {
+      toast.error("Please enter both email and password");
+      return;
+    }
+    
     setLoading(true);
     
-    // Simple timeout to simulate processing
-    setTimeout(() => {
-      setShowWalletModal(true);
+    try {
+      const success = await emailLogin(email, password, rememberMe);
+      
+      if (success) {
+        toast.success("Login successful!");
+        
+        // Redirect to dashboard or the page they were trying to access
+        const from = location.state?.from?.pathname || "/";
+        navigate(from, { replace: true });
+      }
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
 
   const handleWalletConnected = () => {
@@ -85,6 +99,7 @@ const Login = () => {
                     onChange={(e) => setEmail(e.target.value)}
                     className="pl-10 w-full h-11 rounded-md border bg-transparent px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                     placeholder="Enter your email"
+                    required
                   />
                 </div>
               </div>
@@ -113,6 +128,7 @@ const Login = () => {
                     onChange={(e) => setPassword(e.target.value)}
                     className="pl-10 w-full h-11 rounded-md border bg-transparent px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                     placeholder="Enter your password"
+                    required
                   />
                   <button
                     type="button"
@@ -126,6 +142,19 @@ const Login = () => {
                     )}
                   </button>
                 </div>
+              </div>
+              
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="rememberMe"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="h-4 w-4 rounded border-gray-300 text-accent focus:ring-accent"
+                />
+                <label htmlFor="rememberMe" className="ml-2 block text-sm text-gray-700">
+                  Remember me
+                </label>
               </div>
               
               <Button 
