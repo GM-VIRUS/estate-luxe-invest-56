@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
@@ -190,18 +191,11 @@ export function useUserProfile() {
         await fetchUserDetails();
         setIsModified(false);
         setIsEditMode(false);
-        toast({
-          title: "Profile updated",
-          description: "Your profile information has been successfully updated.",
-        });
+        toast.success("Profile updated successfully");
       }
     } catch (error) {
       console.error("Error updating profile:", error);
-      toast({
-        title: "Update failed",
-        description: "There was an error updating your profile. Please try again.",
-        variant: "destructive"
-      });
+      toast.error("Failed to update profile. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -213,10 +207,7 @@ export function useUserProfile() {
       profileImage: imageUrl
     }));
     
-    toast({
-      title: "Profile picture updated",
-      description: "Your profile picture has been successfully updated.",
-    });
+    toast.success("Profile picture updated successfully");
   };
 
   return {
