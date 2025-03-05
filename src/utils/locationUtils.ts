@@ -1,0 +1,78 @@
+
+export function getStateCode(stateName: string): string {
+  const stateCodes: {[key: string]: string} = {
+    "Alabama": "AL",
+    "Alaska": "AK",
+    "Arizona": "AZ",
+    "Arkansas": "AR",
+    "California": "CA",
+    "Colorado": "CO",
+    "Connecticut": "CT",
+    "Delaware": "DE",
+    "Florida": "FL",
+    "Georgia": "GA",
+    "Hawaii": "HI",
+    "Idaho": "ID",
+    "Illinois": "IL",
+    "Indiana": "IN",
+    "Iowa": "IA",
+    "Kansas": "KS",
+    "Kentucky": "KY",
+    "Louisiana": "LA",
+    "Maine": "ME",
+    "Maryland": "MD",
+    "Massachusetts": "MA",
+    "Michigan": "MI",
+    "Minnesota": "MN",
+    "Mississippi": "MS",
+    "Missouri": "MO",
+    "Montana": "MT",
+    "Nebraska": "NE",
+    "Nevada": "NV",
+    "New Hampshire": "NH",
+    "New Jersey": "NJ",
+    "New Mexico": "NM",
+    "New York": "NY",
+    "North Carolina": "NC",
+    "North Dakota": "ND",
+    "Ohio": "OH",
+    "Oklahoma": "OK",
+    "Oregon": "OR",
+    "Pennsylvania": "PA",
+    "Rhode Island": "RI",
+    "South Carolina": "SC",
+    "South Dakota": "SD",
+    "Tennessee": "TN",
+    "Texas": "TX",
+    "Utah": "UT",
+    "Vermont": "VT",
+    "Virginia": "VA",
+    "Washington": "WA",
+    "West Virginia": "WV",
+    "Wisconsin": "WI",
+    "Wyoming": "WY",
+    "Gujarat": "GU",
+    "Karnataka": "KA",
+    "Kerala": "KL",
+    "Tamil Nadu": "TN",
+    "Telangana": "TG",
+  };
+  
+  return stateCodes[stateName] || "";
+}
+
+export function getCountryCode(countryName: string): string {
+  const countryCodes: {[key: string]: string} = {
+    "United States": "+1",
+    "Canada": "+1",
+    "India": "+91",
+    "United Kingdom": "+44",
+    "Australia": "+61",
+    "Germany": "+49",
+    "France": "+33",
+    "Japan": "+81",
+    "China": "+86",
+  };
+  
+  return countryCodes[countryName] || "+1";
+}

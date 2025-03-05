@@ -1,64 +1,97 @@
 
-import { useState, useEffect } from "react";
-import { getUserPortfolio } from "@/utils/portfolioData";
-import { properties } from "@/utils/propertyData";
-import { Property, PortfolioItem, UserPortfolio } from "@/types/property";
+import { useState } from "react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Clock, RefreshCw, Search } from "lucide-react";
 import PortfolioCard from "@/components/portfolio/PortfolioCard";
 import PortfolioSummary from "@/components/portfolio/PortfolioSummary";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Clock, RefreshCw, Search, ArrowLeft } from "lucide-react";
-import { Link } from "react-router-dom";
+import BackButton from "@/components/ui/back-button";
+import SectionHeading from "@/components/ui/section-heading";
+import { usePortfolio } from "@/hooks/usePropertyData";
 
 const Portfolio = () => {
-  const [portfolio, setPortfolio] = useState<UserPortfolio | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-  const [sortBy, setSortBy] = useState<"roi" | "value" | "date">("value");
+  const {
+    portfolio,
+    loading,
+    refreshing,
+    sortBy,
+    setSortBy,
+    handleRefresh,
+    getPropertyDetails,
+    getSortedItems
+  } = usePortfolio();
 
-  useEffect(() => {
-    // Simulate fetch delay
-    const timer = setTimeout(() => {
-      const data = getUserPortfolio();
-      setPortfolio(data);
-      setLoading(false);
-    }, 800);
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  const handleRefresh = () => {
-    setRefreshing(true);
-    
-    // Simulate refresh
-    setTimeout(() => {
-      const data = getUserPortfolio();
-      setPortfolio(data);
-      setRefreshing(false);
-    }, 1200);
-  };
-
-  const getPropertyDetails = (propertyId: string): Property | undefined => {
-    return properties.find(p => p.id === propertyId);
-  };
-
-  const getSortedItems = (items: PortfolioItem[]): PortfolioItem[] => {
-    if (sortBy === "roi") {
-      return [...items].sort((a, b) => {
-        const roiA = (a.currentValuation - a.initialInvestment) / a.initialInvestment;
-        const roiB = (b.currentValuation - b.initialInvestment) / b.initialInvestment;
-        return roiB - roiA;
-      });
-    } else if (sortBy === "date") {
-      return [...items].sort((a, b) => {
-        return new Date(b.purchaseDate).getTime() - new Date(a.purchaseDate).getTime();
-      });
-    } else {
-      // Default: sort by value
-      return [...items].sort((a, b) => b.currentValuation - a.currentValuation);
-    }
-  };
+  const renderFilterButtons = () => (
+    <div className="flex items-center gap-2">
+      <Dialog>
+        <DialogTrigger asChild>
+          <Button variant="outline" size="sm">
+            <Search className="h-4 w-4 mr-2" />
+            Filters
+          </Button>
+        </DialogTrigger>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Filter Properties</DialogTitle>
+            <DialogDescription>
+              Filter and sort your portfolio properties.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <Tabs defaultValue="sort" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="sort">Sort</TabsTrigger>
+                <TabsTrigger value="filter">Filter</TabsTrigger>
+              </TabsList>
+              <TabsContent value="sort">
+                <div className="space-y-4 pt-4">
+                  <div className="grid grid-cols-1 gap-2">
+                    <label className="text-sm font-medium">Sort By</label>
+                    <div className="grid grid-cols-3 gap-2">
+                      <Button 
+                        variant={sortBy === "value" ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setSortBy("value")}
+                      >
+                        Value
+                      </Button>
+                      <Button 
+                        variant={sortBy === "roi" ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setSortBy("roi")}
+                      >
+                        ROI
+                      </Button>
+                      <Button 
+                        variant={sortBy === "date" ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setSortBy("date")}
+                      >
+                        <Clock className="h-4 w-4 mr-1" /> Date
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </TabsContent>
+              <TabsContent value="filter">
+                <div className="space-y-4 pt-4">
+                  <p className="text-sm text-muted-foreground">
+                    Additional filters coming soon.
+                  </p>
+                </div>
+              </TabsContent>
+            </Tabs>
+          </div>
+        </DialogContent>
+      </Dialog>
+      
+      <Button variant="ghost" size="sm" onClick={handleRefresh} disabled={refreshing}>
+        <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? "animate-spin" : ""}`} />
+        {refreshing ? "Updating..." : "Refresh"}
+      </Button>
+    </div>
+  );
 
   if (loading) {
     return (
@@ -104,91 +137,14 @@ const Portfolio = () => {
   return (
     <div className="container mx-auto px-4 py-16">
       <div className="mb-6">
-        <Link to="/">
-          <Button variant="ghost" className="pl-0 group transition-all duration-300 hover:translate-x-[-5px]">
-            <ArrowLeft className="h-4 w-4 mr-2 transition-transform group-hover:scale-110" />
-            Back to Home
-          </Button>
-        </Link>
+        <BackButton to="/" label="Back to Home" />
       </div>
       
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-        <div>
-          <h1 className="text-3xl font-bold mb-1">My Portfolio</h1>
-          <p className="text-muted-foreground">
-            Manage your real estate investments and track performance
-          </p>
-        </div>
-        
-        <div className="flex items-center gap-2">
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button variant="outline" size="sm">
-                <Search className="h-4 w-4 mr-2" />
-                Filters
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Filter Properties</DialogTitle>
-                <DialogDescription>
-                  Filter and sort your portfolio properties.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="py-4">
-                <Tabs defaultValue="sort" className="w-full">
-                  <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="sort">Sort</TabsTrigger>
-                    <TabsTrigger value="filter">Filter</TabsTrigger>
-                  </TabsList>
-                  <TabsContent value="sort">
-                    <div className="space-y-4 pt-4">
-                      <div className="grid grid-cols-1 gap-2">
-                        <label className="text-sm font-medium">Sort By</label>
-                        <div className="grid grid-cols-3 gap-2">
-                          <Button 
-                            variant={sortBy === "value" ? "default" : "outline"}
-                            size="sm"
-                            onClick={() => setSortBy("value")}
-                          >
-                            Value
-                          </Button>
-                          <Button 
-                            variant={sortBy === "roi" ? "default" : "outline"}
-                            size="sm"
-                            onClick={() => setSortBy("roi")}
-                          >
-                            ROI
-                          </Button>
-                          <Button 
-                            variant={sortBy === "date" ? "default" : "outline"}
-                            size="sm"
-                            onClick={() => setSortBy("date")}
-                          >
-                            <Clock className="h-4 w-4 mr-1" /> Date
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  </TabsContent>
-                  <TabsContent value="filter">
-                    <div className="space-y-4 pt-4">
-                      <p className="text-sm text-muted-foreground">
-                        Additional filters coming soon.
-                      </p>
-                    </div>
-                  </TabsContent>
-                </Tabs>
-              </div>
-            </DialogContent>
-          </Dialog>
-          
-          <Button variant="ghost" size="sm" onClick={handleRefresh} disabled={refreshing}>
-            <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? "animate-spin" : ""}`} />
-            {refreshing ? "Updating..." : "Refresh"}
-          </Button>
-        </div>
-      </div>
+      <SectionHeading
+        title="My Portfolio"
+        description="Manage your real estate investments and track performance"
+        rightElement={renderFilterButtons()}
+      />
       
       <PortfolioSummary portfolio={portfolio} />
       
