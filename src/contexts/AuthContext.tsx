@@ -1,3 +1,4 @@
+
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { toast } from 'sonner';
 
@@ -58,9 +59,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   useEffect(() => {
     const storedUser = localStorage.getItem('estateToken_user');
+    console.log("Checking for stored user data:", storedUser ? "Found" : "Not found");
     if (storedUser) {
       try {
         const parsedUser = JSON.parse(storedUser);
+        console.log("Parsed stored user data:", { ...parsedUser, token: parsedUser.token ? `${parsedUser.token.substring(0, 10)}...` : null });
         setUser(parsedUser);
         setIsAuthenticated(true);
       } catch (error) {
@@ -103,6 +106,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const emailLogin = async (email: string, password: string, rememberMe: boolean): Promise<boolean> => {
     try {
+      console.log("Attempting email login for:", email);
       const response = await fetch('https://dev-user-api.investech.global/api/v2/user/login', {
         method: 'POST',
         headers: {
@@ -117,14 +121,18 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       }
 
       const data = await response.json();
+      console.log("Login response:", { ...data, token: data.token ? `${data.token.substring(0, 10)}...` : null });
       
       const newUser = {
         email,
-        profileImage: '/placeholder.svg',
-        walletAddress: null,
-        token: data.token || data.accessToken,
+        profileImage: data.data?.profileImage || '/placeholder.svg',
+        walletAddress: data.data?.walletAddress || null,
+        token: data.data?.token || data.token || data.accessToken,
+        firstName: data.data?.firstName,
+        lastName: data.data?.lastName,
       };
 
+      console.log("Setting user data after login:", { ...newUser, token: newUser.token ? `${newUser.token.substring(0, 10)}...` : null });
       setUser(newUser);
       setIsAuthenticated(true);
       localStorage.setItem('estateToken_user', JSON.stringify(newUser));

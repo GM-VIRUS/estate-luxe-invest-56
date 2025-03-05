@@ -1,4 +1,5 @@
 
+import { useEffect } from "react";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { Link } from "react-router-dom";
 import { PenLine } from "lucide-react";
@@ -23,8 +24,16 @@ const Profile = () => {
     handleSelectChange,
     toggleEditMode,
     handleProfileUpdate,
-    handleProfileImageUpdate
+    handleProfileImageUpdate,
+    fetchUserDetails
   } = useUserProfile();
+
+  // Add useEffect to log component lifecycle for debugging
+  useEffect(() => {
+    console.log("Profile component mounted");
+    // We don't need to call fetchUserDetails here as it's already called in the hook
+    // This is just to log when the component mounts
+  }, []);
 
   if (isFetching) {
     return (

@@ -54,9 +54,17 @@ export function useUserProfile() {
   // Store original data to check for modifications
   const [originalData, setOriginalData] = useState<UserDetails>({...userData});
 
+  // This useEffect should run when the component mounts and when user changes
   useEffect(() => {
-    fetchUserDetails();
-  }, [user]);
+    console.log("useUserProfile hook initialized, fetching user details");
+    if (user?.token) {
+      console.log("User token available, making API call");
+      fetchUserDetails();
+    } else {
+      console.log("No user token available, skipping API call");
+      setIsFetching(false);
+    }
+  }, [user?.token]); // Depend on user.token specifically
 
   // Check if the form has been modified
   useEffect(() => {
@@ -87,6 +95,7 @@ export function useUserProfile() {
     }
 
     setIsFetching(true);
+    console.log("Fetching user details with token:", user.token.substring(0, 10) + "...");
     
     try {
       const response = await userApi.getUserDetails(user.token);
@@ -115,6 +124,9 @@ export function useUserProfile() {
 
         setUserData(details);
         setOriginalData({...details});
+        console.log("User data set successfully:", details);
+      } else {
+        console.warn("API returned success but no data or unexpected format");
       }
     } catch (error) {
       console.error("Error fetching user details:", error);
@@ -219,7 +231,8 @@ export function useUserProfile() {
     handleSelectChange,
     toggleEditMode,
     handleProfileUpdate,
-    handleProfileImageUpdate
+    handleProfileImageUpdate,
+    fetchUserDetails // Export this function to allow manual refresh
   };
 }
 

@@ -21,6 +21,7 @@ export async function apiRequest<T>(
   options: RequestInit = {}
 ): Promise<ApiResponse<T>> {
   try {
+    console.log(`Making API request to: ${endpoint}`);
     const response = await fetch(endpoint, {
       ...options,
       headers: {
@@ -34,7 +35,9 @@ export async function apiRequest<T>(
       throw new Error(errorData.message || errorData.msg || `API request failed with status ${response.status}`);
     }
 
-    return await response.json();
+    const data = await response.json();
+    console.log(`API response from ${endpoint}:`, data);
+    return data;
   } catch (error) {
     console.error(`API request error:`, error);
     throw error;
@@ -46,6 +49,7 @@ export async function apiRequest<T>(
  */
 export const userApi = {
   getUserDetails: async (token: string): Promise<ApiResponse<any>> => {
+    console.log("Calling getUserDetails API with token:", token.substring(0, 10) + "...");
     return apiRequest(`${API_BASE_URL.USER}/userDetails`, {
       method: 'GET',
       headers: {
