@@ -18,6 +18,19 @@ interface AuthContextType {
   signup: (email: string, password: string, firstName: string, lastName: string) => Promise<boolean>;
   verifyEmail: (email: string, otp: number) => Promise<boolean>;
   logout: () => void;
+  updateUserProfile: (profileData: ProfileUpdateData) => Promise<boolean>;
+}
+
+interface ProfileUpdateData {
+  dob: string;
+  countryCode: string;
+  mobileNumber: number;
+  country: string;
+  state: string;
+  city: string;
+  zipCode: number;
+  address1: string;
+  stateCode: string;
 }
 
 const defaultContext: AuthContextType = {
@@ -28,6 +41,7 @@ const defaultContext: AuthContextType = {
   signup: async () => false,
   verifyEmail: async () => false,
   logout: () => {},
+  updateUserProfile: async () => false,
 };
 
 const AuthContext = createContext<AuthContextType>(defaultContext);
@@ -174,6 +188,37 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
+  const updateUserProfile = async (profileData: ProfileUpdateData): Promise<boolean> => {
+    if (!user?.token) {
+      toast.error("You must be logged in to update your profile");
+      return false;
+    }
+
+    try {
+      const response = await fetch('https://dev-user-api.investech.global/api/v2/user/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${user.token}`
+        },
+        body: JSON.stringify(profileData)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to update profile');
+      }
+
+      const data = await response.json();
+      toast.success("Profile updated successfully!");
+      return true;
+    } catch (error) {
+      console.error('Profile update error:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to update profile. Please try again.');
+      return false;
+    }
+  };
+
   const logout = () => {
     setUser(null);
     setIsAuthenticated(false);
@@ -190,6 +235,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         signup,
         verifyEmail,
         logout,
+        updateUserProfile,
       }}
     >
       {children}

@@ -30,11 +30,13 @@ interface UserDetails {
   zipCode: string;
   country: string;
   profileImage: string;
+  countryCode?: string;
+  stateCode?: string;
 }
 
 const Profile = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, updateUserProfile } = useAuth();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
@@ -56,7 +58,9 @@ const Profile = () => {
     state: "",
     zipCode: "",
     country: "",
-    profileImage: "/placeholder.svg"
+    profileImage: "/placeholder.svg",
+    countryCode: "+1",
+    stateCode: ""
   });
 
   // Store original data to check for modifications
@@ -80,7 +84,9 @@ const Profile = () => {
         userData.city !== originalData.city ||
         userData.state !== originalData.state ||
         userData.zipCode !== originalData.zipCode ||
-        userData.country !== originalData.country;
+        userData.country !== originalData.country ||
+        userData.countryCode !== originalData.countryCode ||
+        userData.stateCode !== originalData.stateCode;
       
       setIsModified(isChanged);
     }
@@ -171,19 +177,107 @@ const Profile = () => {
     e.preventDefault();
     setIsLoading(true);
     
-    // Here you would typically send the updated data to your API
-    // For now, we'll just simulate an API call with a timeout
-    setTimeout(() => {
-      setIsLoading(false);
-      // Update original data after save
-      setOriginalData({...userData});
-      setIsModified(false);
-      setIsEditMode(false);
+    try {
+      // Format the data according to the API requirements
+      const profileData = {
+        dob: userData.dob,
+        countryCode: userData.countryCode || "+1",
+        mobileNumber: parseInt(userData.phoneNumber.replace(/\D/g, '')) || 0,
+        country: userData.country,
+        state: userData.state,
+        city: userData.city,
+        zipCode: parseInt(userData.zipCode) || 0,
+        address1: userData.address,
+        stateCode: userData.stateCode || getStateCode(userData.state)
+      };
+      
+      console.log("Sending profile update with data:", profileData);
+      
+      const success = await updateUserProfile(profileData);
+      
+      if (success) {
+        // Update original data after save
+        setOriginalData({...userData});
+        setIsModified(false);
+        setIsEditMode(false);
+        toast({
+          title: "Profile updated",
+          description: "Your profile information has been successfully updated.",
+        });
+      }
+    } catch (error) {
+      console.error("Error updating profile:", error);
       toast({
-        title: "Profile updated",
-        description: "Your profile information has been successfully updated.",
+        title: "Update failed",
+        description: "There was an error updating your profile. Please try again.",
+        variant: "destructive"
       });
-    }, 1500);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Helper function to get state code
+  const getStateCode = (stateName: string): string => {
+    const stateCodes: {[key: string]: string} = {
+      "Alabama": "AL",
+      "Alaska": "AK",
+      "Arizona": "AZ",
+      "Arkansas": "AR",
+      "California": "CA",
+      "Colorado": "CO",
+      "Connecticut": "CT",
+      "Delaware": "DE",
+      "Florida": "FL",
+      "Georgia": "GA",
+      "Hawaii": "HI",
+      "Idaho": "ID",
+      "Illinois": "IL",
+      "Indiana": "IN",
+      "Iowa": "IA",
+      "Kansas": "KS",
+      "Kentucky": "KY",
+      "Louisiana": "LA",
+      "Maine": "ME",
+      "Maryland": "MD",
+      "Massachusetts": "MA",
+      "Michigan": "MI",
+      "Minnesota": "MN",
+      "Mississippi": "MS",
+      "Missouri": "MO",
+      "Montana": "MT",
+      "Nebraska": "NE",
+      "Nevada": "NV",
+      "New Hampshire": "NH",
+      "New Jersey": "NJ",
+      "New Mexico": "NM",
+      "New York": "NY",
+      "North Carolina": "NC",
+      "North Dakota": "ND",
+      "Ohio": "OH",
+      "Oklahoma": "OK",
+      "Oregon": "OR",
+      "Pennsylvania": "PA",
+      "Rhode Island": "RI",
+      "South Carolina": "SC",
+      "South Dakota": "SD",
+      "Tennessee": "TN",
+      "Texas": "TX",
+      "Utah": "UT",
+      "Vermont": "VT",
+      "Virginia": "VA",
+      "Washington": "WA",
+      "West Virginia": "WV",
+      "Wisconsin": "WI",
+      "Wyoming": "WY",
+      "Gujarat": "GU",
+      "Karnataka": "KA",
+      "Kerala": "KL",
+      "Tamil Nadu": "TN",
+      "Telangana": "TG",
+    };
+    
+    return stateCodes[stateName] || "";
   };
 
   const handleProfileImageUpdate = (imageUrl: string) => {
