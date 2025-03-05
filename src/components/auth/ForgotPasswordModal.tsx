@@ -4,6 +4,7 @@ import { X, Mail, Check, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { userApi } from "@/services/api";
 
 interface ForgotPasswordModalProps {
   isOpen: boolean;
@@ -18,7 +19,7 @@ const ForgotPasswordModal = ({ isOpen, onClose }: ForgotPasswordModalProps) => {
   const [confirmResetPassword, setConfirmResetPassword] = useState("");
   const [resetComplete, setResetComplete] = useState(false);
 
-  const handleSendResetLink = (e: React.FormEvent) => {
+  const handleSendResetLink = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // Basic validation
@@ -36,22 +37,18 @@ const ForgotPasswordModal = ({ isOpen, onClose }: ForgotPasswordModalProps) => {
     
     setLoading(true);
     
-    // Simulate API call
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      const response = await userApi.forgotPassword(email);
+      console.log("Forgot password response:", response);
       
-      // Check if email exists
-      const mockRegisteredEmail = "user@example.com";
-      
-      if (email !== mockRegisteredEmail) {
-        toast.error("Email not found. Please check your email or sign up.");
-        return;
-      }
-      
-      // Simulate sending reset email
       setResetSent(true);
-      toast.success("Password reset link sent to your email!");
-    }, 1500);
+      toast.success(response.msg || "Password reset link sent to your email!");
+    } catch (error) {
+      console.error("Forgot password error:", error);
+      toast.error(error instanceof Error ? error.message : "Failed to send reset link. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleResetPassword = (e: React.FormEvent) => {
@@ -78,7 +75,7 @@ const ForgotPasswordModal = ({ isOpen, onClose }: ForgotPasswordModalProps) => {
     
     setLoading(true);
     
-    // Simulate API call
+    // Simulate API call - this would be replaced with actual API call once available
     setTimeout(() => {
       setLoading(false);
       setResetComplete(true);
@@ -166,7 +163,7 @@ const ForgotPasswordModal = ({ isOpen, onClose }: ForgotPasswordModalProps) => {
               </Button>
             </form>
           ) : !resetComplete ? (
-            // Step 2: Reset password form
+            // Step 2: Reset password form - future enhancement
             <form onSubmit={handleResetPassword} className="space-y-4 animate-fade-in">
               <div className="text-center">
                 <p className="text-sm text-muted-foreground">

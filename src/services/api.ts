@@ -1,4 +1,3 @@
-
 import { toast } from "sonner";
 
 const API_BASE_URL = {
@@ -120,6 +119,20 @@ export const userApi = {
       });
     } catch (error) {
       console.error("changePassword API error:", error);
+      throw error;
+    }
+  },
+  
+  forgotPassword: async (email: string): Promise<ApiResponse<any>> => {
+    console.log("Calling forgotPassword API with email:", email);
+    
+    try {
+      return await apiRequest(`${API_BASE_URL.USER}/forgotPassword`, {
+        method: 'POST',
+        body: JSON.stringify({ email })
+      });
+    } catch (error) {
+      console.error("forgotPassword API error:", error);
       throw error;
     }
   }

@@ -14,8 +14,8 @@ import SignupSuccess from "@/components/auth/SignupSuccess";
 // Step definitions
 enum SignupStep {
   AccountInfo = 0,
-  WalletConnection = 1,
-  EmailVerification = 2,
+  EmailVerification = 1,
+  WalletConnection = 2,
   Success = 3
 }
 
@@ -118,7 +118,7 @@ const Signup = () => {
       
       if (success) {
         toast.success("Account created! Please verify your email.");
-        setCurrentStep(SignupStep.WalletConnection);
+        setCurrentStep(SignupStep.EmailVerification);
       }
     } catch (error) {
       toast.error("An error occurred. Please try again.");
@@ -127,20 +127,20 @@ const Signup = () => {
     }
   };
 
+  // Handle email verification success
+  const handleEmailVerified = () => {
+    setCurrentStep(SignupStep.WalletConnection);
+  };
+
   // Handle wallet connection
   const handleWalletConnected = (address: string) => {
     // Store the wallet address for later use
     login(address);
-    setCurrentStep(SignupStep.EmailVerification);
+    setCurrentStep(SignupStep.Success);
   };
 
   // Handle wallet connection skipped
   const handleWalletSkipped = () => {
-    setCurrentStep(SignupStep.EmailVerification);
-  };
-
-  // Handle email verification success
-  const handleEmailVerified = () => {
     setCurrentStep(SignupStep.Success);
   };
 
@@ -359,7 +359,27 @@ const Signup = () => {
               <Button
                 variant="ghost"
                 className="flex items-center text-muted-foreground"
-                onClick={() => setCurrentStep(SignupStep.WalletConnection)}
+                onClick={() => setCurrentStep(SignupStep.AccountInfo)}
+              >
+                <ArrowLeft className="mr-2 h-4 w-4" /> Back
+              </Button>
+            </div>
+          </div>
+        );
+        
+      case SignupStep.WalletConnection:
+        return (
+          <div className="space-y-4">
+            <WalletConnection 
+              onSuccess={handleWalletConnected} 
+              onSkip={handleWalletSkipped} 
+            />
+            
+            <div className="flex items-center justify-center pt-4">
+              <Button
+                variant="ghost"
+                className="flex items-center text-muted-foreground"
+                onClick={() => setCurrentStep(SignupStep.EmailVerification)}
               >
                 <ArrowLeft className="mr-2 h-4 w-4" /> Back
               </Button>
