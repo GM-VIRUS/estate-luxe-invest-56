@@ -1,4 +1,3 @@
-
 import { toast } from "sonner";
 
 const API_BASE_URL = {
@@ -22,6 +21,11 @@ export async function apiRequest<T>(
 ): Promise<ApiResponse<T>> {
   try {
     console.log(`Making API request to: ${endpoint}`);
+    console.log(`Request options:`, {
+      method: options.method || 'GET',
+      headers: options.headers
+    });
+    
     const response = await fetch(endpoint, {
       ...options,
       headers: {
@@ -30,8 +34,11 @@ export async function apiRequest<T>(
       },
     });
 
+    console.log(`Response status:`, response.status);
+    
     if (!response.ok) {
       const errorData = await response.json();
+      console.error(`API request failed:`, errorData);
       throw new Error(errorData.message || errorData.msg || `API request failed with status ${response.status}`);
     }
 
@@ -49,13 +56,25 @@ export async function apiRequest<T>(
  */
 export const userApi = {
   getUserDetails: async (token: string): Promise<ApiResponse<any>> => {
+    if (!token) {
+      console.error("Cannot get user details: No token provided");
+      throw new Error("No authentication token provided");
+    }
+    
     console.log("Calling getUserDetails API with token:", token.substring(0, 10) + "...");
-    return apiRequest(`${API_BASE_URL.USER}/userDetails`, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    });
+    
+    try {
+      return await apiRequest(`${API_BASE_URL.USER}/userDetails`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+    } catch (error) {
+      console.error("getUserDetails API error:", error);
+      toast.error("Failed to fetch your profile details");
+      throw error;
+    }
   },
   
   updateUserProfile: async (token: string, profileData: any): Promise<ApiResponse<any>> => {

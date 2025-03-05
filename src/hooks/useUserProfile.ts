@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
@@ -31,7 +30,6 @@ export function useUserProfile() {
   const [isModified, setIsModified] = useState(false);
   const [isFetching, setIsFetching] = useState(true);
   
-  // Default empty user data
   const [userData, setUserData] = useState<UserDetails>({
     firstName: "",
     lastName: "",
@@ -51,22 +49,23 @@ export function useUserProfile() {
     stateCode: ""
   });
 
-  // Store original data to check for modifications
   const [originalData, setOriginalData] = useState<UserDetails>({...userData});
 
-  // This useEffect should run when the component mounts and when user changes
   useEffect(() => {
-    console.log("useUserProfile hook initialized, fetching user details");
+    console.log("useUserProfile hook initialized, checking for token");
+    console.log("User object:", user ? "exists" : "does not exist");
+    console.log("User token:", user?.token ? "exists" : "does not exist");
+    
     if (user?.token) {
-      console.log("User token available, making API call");
+      console.log("User token available:", user.token.substring(0, 10) + "...");
+      console.log("Initiating API call to fetch user details");
       fetchUserDetails();
     } else {
       console.log("No user token available, skipping API call");
       setIsFetching(false);
     }
-  }, [user?.token]); // Depend on user.token specifically
+  }, [user?.token]);
 
-  // Check if the form has been modified
   useEffect(() => {
     if (!isFetching) {
       const isChanged = 
@@ -90,6 +89,7 @@ export function useUserProfile() {
 
   const fetchUserDetails = async () => {
     if (!user?.token) {
+      console.log("fetchUserDetails called but no token available");
       setIsFetching(false);
       return;
     }
@@ -122,11 +122,16 @@ export function useUserProfile() {
           stateCode: userInfo.stateCode || ""
         };
 
+        console.log("Setting user data:", details);
         setUserData(details);
         setOriginalData({...details});
-        console.log("User data set successfully:", details);
       } else {
-        console.warn("API returned success but no data or unexpected format");
+        console.warn("API returned success but no data or unexpected format:", response);
+        toast({
+          title: "Warning",
+          description: "Unable to load complete user details",
+          variant: "default"
+        });
       }
     } catch (error) {
       console.error("Error fetching user details:", error);
@@ -157,7 +162,6 @@ export function useUserProfile() {
 
   const toggleEditMode = () => {
     if (isEditMode && isModified) {
-      // Discard changes
       setUserData({...originalData});
       setIsModified(false);
     }
@@ -169,7 +173,6 @@ export function useUserProfile() {
     setIsLoading(true);
     
     try {
-      // Format the data according to the API requirements
       const profileData = {
         dob: userData.dob,
         countryCode: userData.countryCode || "+1",
@@ -187,7 +190,6 @@ export function useUserProfile() {
       const success = await updateUserProfile(profileData);
       
       if (success) {
-        // Fetch updated user details
         await fetchUserDetails();
         setIsModified(false);
         setIsEditMode(false);
@@ -232,7 +234,7 @@ export function useUserProfile() {
     toggleEditMode,
     handleProfileUpdate,
     handleProfileImageUpdate,
-    fetchUserDetails // Export this function to allow manual refresh
+    fetchUserDetails
   };
 }
 

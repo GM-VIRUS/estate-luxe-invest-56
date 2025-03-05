@@ -1,6 +1,7 @@
 
 import { useEffect } from "react";
 import { useUserProfile } from "@/hooks/useUserProfile";
+import { useAuth } from "@/contexts/AuthContext";
 import { Link } from "react-router-dom";
 import { PenLine } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -13,6 +14,7 @@ import ProfileForm from "@/components/profile/ProfileForm";
 import PasswordChangeForm from "@/components/profile/PasswordChangeForm";
 
 const Profile = () => {
+  const { user } = useAuth();
   const {
     userData,
     originalData,
@@ -31,9 +33,18 @@ const Profile = () => {
   // Add useEffect to log component lifecycle for debugging
   useEffect(() => {
     console.log("Profile component mounted");
+    console.log("User auth status:", user ? "Logged in" : "Not logged in");
+    console.log("User token available:", user?.token ? "Yes" : "No");
+    
     // We don't need to call fetchUserDetails here as it's already called in the hook
     // This is just to log when the component mounts
-  }, []);
+  }, [user]);
+
+  // Add debug information about fetching status
+  useEffect(() => {
+    console.log("Profile fetching status:", isFetching ? "Loading data" : "Finished loading");
+    console.log("Current user data:", userData);
+  }, [isFetching, userData]);
 
   if (isFetching) {
     return (

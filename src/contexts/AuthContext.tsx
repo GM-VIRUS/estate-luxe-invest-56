@@ -64,8 +64,17 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       try {
         const parsedUser = JSON.parse(storedUser);
         console.log("Parsed stored user data:", { ...parsedUser, token: parsedUser.token ? `${parsedUser.token.substring(0, 10)}...` : null });
-        setUser(parsedUser);
-        setIsAuthenticated(true);
+        
+        // Ensure the token exists and is not null or undefined
+        if (parsedUser.token) {
+          setUser(parsedUser);
+          setIsAuthenticated(true);
+          console.log("User authenticated with token:", parsedUser.token.substring(0, 10) + "...");
+        } else {
+          console.warn("Found user data but token is missing or invalid");
+          // Consider if you want to clear invalid data
+          // localStorage.removeItem('estateToken_user');
+        }
       } catch (error) {
         console.error('Failed to parse stored user data:', error);
         localStorage.removeItem('estateToken_user');
@@ -123,11 +132,20 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       const data = await response.json();
       console.log("Login response:", { ...data, token: data.token ? `${data.token.substring(0, 10)}...` : null });
       
+      // Extract token from the correct location in the response
+      const token = data.data?.token || data.token || data.accessToken;
+      
+      if (!token) {
+        console.error("No token found in login response");
+        toast.error("Authentication error: No token received");
+        return false;
+      }
+      
       const newUser = {
         email,
         profileImage: data.data?.profileImage || '/placeholder.svg',
         walletAddress: data.data?.walletAddress || null,
-        token: data.data?.token || data.token || data.accessToken,
+        token: token,
         firstName: data.data?.firstName,
         lastName: data.data?.lastName,
       };
