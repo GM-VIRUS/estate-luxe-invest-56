@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -114,6 +113,7 @@ const Profile = () => {
       }
 
       const data = await response.json();
+      console.log("User details API response:", data);
       
       if (data.result === 1 && data.data) {
         const userInfo = data.data;
@@ -121,17 +121,19 @@ const Profile = () => {
           firstName: userInfo.firstName || "",
           lastName: userInfo.lastName || "",
           email: userInfo.email || "",
-          phoneNumber: userInfo.phone || "",
+          phoneNumber: userInfo.mobileNumber?.toString() || "",
           walletAddress: userInfo.walletAddress || null,
           dob: userInfo.dob || "",
           ssn: userInfo.ssn || "",
-          address: userInfo.address?.address1 || "",
-          addressLine2: userInfo.address?.address2 || "",
-          city: userInfo.address?.city || "",
-          state: userInfo.address?.state || "",
-          zipCode: userInfo.address?.zipCode || "",
-          country: userInfo.address?.country || "",
-          profileImage: userInfo.profileImage || "/placeholder.svg"
+          address: userInfo.address1 || "",
+          addressLine2: userInfo.address2 || "",
+          city: userInfo.city || "",
+          state: userInfo.state || "",
+          zipCode: userInfo.zipCode?.toString() || "",
+          country: userInfo.country || "",
+          profileImage: userInfo.profileImage || "/placeholder.svg",
+          countryCode: userInfo.countryCode || "+1",
+          stateCode: userInfo.stateCode || ""
         };
 
         setUserData(details);
@@ -196,8 +198,8 @@ const Profile = () => {
       const success = await updateUserProfile(profileData);
       
       if (success) {
-        // Update original data after save
-        setOriginalData({...userData});
+        // Fetch updated user details
+        await fetchUserDetails();
         setIsModified(false);
         setIsEditMode(false);
         toast({
@@ -217,7 +219,6 @@ const Profile = () => {
     }
   };
 
-  // Helper function to get state code
   const getStateCode = (stateName: string): string => {
     const stateCodes: {[key: string]: string} = {
       "Alabama": "AL",
