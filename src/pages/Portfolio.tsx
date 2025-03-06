@@ -3,12 +3,13 @@ import { useState } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Clock, RefreshCw, Search } from "lucide-react";
+import { Clock, RefreshCw, Search, Wallet, TrendingUp } from "lucide-react";
 import PortfolioCard from "@/components/portfolio/PortfolioCard";
 import PortfolioSummary from "@/components/portfolio/PortfolioSummary";
 import BackButton from "@/components/ui/back-button";
 import SectionHeading from "@/components/ui/section-heading";
 import { usePortfolio } from "@/hooks/usePropertyData";
+import { formatCurrency } from "@/utils/formatters";
 
 const Portfolio = () => {
   const {
@@ -146,21 +147,42 @@ const Portfolio = () => {
         rightElement={renderFilterButtons()}
       />
       
+      {/* Portfolio Summary Section */}
       <PortfolioSummary portfolio={portfolio} />
       
+      {/* My Investments Section - Added a clear heading */}
+      <div className="mb-6">
+        <h2 className="text-2xl font-semibold">My Investments</h2>
+        <p className="text-muted-foreground">Properties you've invested in</p>
+      </div>
+      
+      {/* Portfolio Items */}
       <div className="space-y-6">
-        {sortedItems.map((item) => {
-          const property = getPropertyDetails(item.propertyId);
-          if (!property) return null;
-          
-          return (
-            <PortfolioCard 
-              key={item.propertyId} 
-              item={item}
-              property={property}
-            />
-          );
-        })}
+        {sortedItems.length > 0 ? (
+          sortedItems.map((item) => {
+            const property = getPropertyDetails(item.propertyId);
+            if (!property) return null;
+            
+            return (
+              <PortfolioCard 
+                key={item.propertyId} 
+                item={item}
+                property={property}
+              />
+            );
+          })
+        ) : (
+          <div className="text-center py-8 border rounded-xl bg-gray-50">
+            <div className="mx-auto w-16 h-16 mb-4 flex items-center justify-center rounded-full bg-gray-100">
+              <Wallet className="h-8 w-8 text-gray-400" />
+            </div>
+            <h3 className="text-xl font-medium mb-2">No investments yet</h3>
+            <p className="text-muted-foreground mb-4">You haven't invested in any properties yet.</p>
+            <Button asChild>
+              <a href="/properties">Browse Properties</a>
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );

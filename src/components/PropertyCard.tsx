@@ -127,7 +127,7 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
               </div>
               <div>
                 <p className="text-muted-foreground">Available</p>
-                <p className="font-medium">{property.availableTokens} tokens</p>
+                <p className="font-medium">{isSoldOut ? "0" : property.availableTokens} tokens</p>
               </div>
             </div>
 

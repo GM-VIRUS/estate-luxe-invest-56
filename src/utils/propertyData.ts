@@ -14,7 +14,7 @@ export const properties: Property[] = [
     totalValue: 2500000,
     pricePerToken: 1000,
     totalSupply: 2500,
-    availableTokens: 1800,
+    availableTokens: 0,
     roi: 8.5,
     imageUrl: "https://images.unsplash.com/photo-1496307653780-42ee777d4833?auto=format&fit=crop&q=80",
     images: [
@@ -31,7 +31,7 @@ export const properties: Property[] = [
     bathrooms: 3.5,
     yearBuilt: 2020,
     amenities: ["Rooftop Terrace", "Smart Home Technology", "Concierge Service", "Fitness Center"],
-    status: "Available"
+    status: "Sold Out"
   },
   {
     id: "prop-002",

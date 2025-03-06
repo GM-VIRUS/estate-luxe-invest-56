@@ -26,9 +26,11 @@ import {
   TrendingUp, 
   Clock, 
   Coins,
-  FileText
+  FileText,
+  Tag
 } from "lucide-react";
 import TransactionHistory from "./TransactionHistory";
+import { Badge } from "@/components/ui/badge";
 
 interface PortfolioCardProps {
   item: PortfolioItem;
@@ -41,6 +43,9 @@ const PortfolioCard = ({ item, property }: PortfolioCardProps) => {
   
   // Calculate ROI
   const roi = ((item.currentValuation - item.initialInvestment) / item.initialInvestment) * 100;
+  
+  // Calculate percentage of property owned
+  const percentageOwned = ((item.tokens / property.totalSupply) * 100).toFixed(2);
   
   return (
     <Card 
@@ -59,10 +64,15 @@ const PortfolioCard = ({ item, property }: PortfolioCardProps) => {
             style={{ transform: isHovered ? "scale(1.05)" : "scale(1)" }}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-          <div className="absolute bottom-3 left-3 right-3">
+          <div className="absolute bottom-3 left-3 right-3 flex flex-wrap gap-2">
             <span className="px-2 py-1 bg-accent/90 text-white text-xs font-medium rounded-full">
               {property.propertyType}
             </span>
+            {property.status === "Sold Out" && (
+              <span className="px-2 py-1 bg-red-500 text-white text-xs font-medium rounded-full">
+                Sold Out
+              </span>
+            )}
           </div>
         </div>
         
@@ -90,7 +100,7 @@ const PortfolioCard = ({ item, property }: PortfolioCardProps) => {
                 <p className="text-sm font-medium">{formatCurrency(item.initialInvestment)}</p>
               </div>
               <div className="space-y-1">
-                <p className="text-xs text-muted-foreground">Revenue Generated</p>
+                <p className="text-xs text-muted-foreground">Current Value</p>
                 <p className="text-sm font-medium">{formatCurrency(item.currentValuation)}</p>
               </div>
               <div className="space-y-1">
@@ -98,9 +108,16 @@ const PortfolioCard = ({ item, property }: PortfolioCardProps) => {
                 <p className="text-sm font-medium">{item.tokens} tokens</p>
               </div>
               <div className="space-y-1">
-                <p className="text-xs text-muted-foreground">Token Price</p>
-                <p className="text-sm font-medium">{formatCurrency(property.pricePerToken)}</p>
+                <p className="text-xs text-muted-foreground">Ownership</p>
+                <p className="text-sm font-medium">{percentageOwned}%</p>
               </div>
+            </div>
+            
+            <div className="flex flex-wrap gap-2">
+              <Badge variant="outline" className="bg-accent/5 text-accent border-accent/20">
+                <Tag className="h-3 w-3 mr-1" />
+                {formatCurrency(property.pricePerToken)} per token
+              </Badge>
             </div>
           </CardContent>
           
@@ -152,7 +169,7 @@ const PortfolioCard = ({ item, property }: PortfolioCardProps) => {
                   </div>
                   <div className="flex items-center text-sm text-muted-foreground">
                     <Coins className="h-4 w-4 mr-2" />
-                    <span>Token Ownership: {((item.tokens / property.totalSupply) * 100).toFixed(2)}% of property</span>
+                    <span>Token Ownership: {percentageOwned}% of property</span>
                   </div>
                 </div>
                 
