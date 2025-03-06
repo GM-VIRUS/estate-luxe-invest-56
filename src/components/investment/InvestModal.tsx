@@ -20,6 +20,7 @@ interface InvestModalProps {
 export function InvestModal({ property, isOpen, onClose }: InvestModalProps) {
   const {
     step,
+    setStep,
     amount,
     shares,
     selectedAccount,
