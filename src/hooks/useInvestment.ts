@@ -323,6 +323,7 @@ export function useInvestment() {
 
   return {
     step,
+    setStep,
     amount,
     shares,
     selectedAccount,

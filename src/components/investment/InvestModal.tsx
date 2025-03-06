@@ -115,6 +115,10 @@ export function InvestModal({ property, isOpen, onClose }: InvestModalProps) {
     proceedToConfirmation();
   };
 
+  const handleGoBackToPayment = () => {
+    setStep('payment');
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden">
@@ -161,6 +165,7 @@ export function InvestModal({ property, isOpen, onClose }: InvestModalProps) {
             selectedAccount={accounts.find(acc => acc.id === selectedAccount)}
             processing={processingPayment}
             onConfirm={handleSubmitPayment}
+            onGoBack={handleGoBackToPayment}
           />
         )}
       </DialogContent>

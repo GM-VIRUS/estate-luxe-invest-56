@@ -22,6 +22,7 @@ interface OrderConfirmationProps {
   selectedAccount: PlaidAccount | undefined;
   processing: boolean;
   onConfirm: () => void;
+  onGoBack?: () => void; // Add this prop for going back
 }
 
 export function OrderConfirmation({
@@ -29,7 +30,8 @@ export function OrderConfirmation({
   amount,
   selectedAccount,
   processing,
-  onConfirm
+  onConfirm,
+  onGoBack
 }: OrderConfirmationProps) {
   // Constants for fee calculations
   const investTechFees = 0; // No fees for now
@@ -66,15 +68,17 @@ export function OrderConfirmation({
           alt={property.title}
           className="w-full h-full object-cover"
         />
-        <div className="absolute top-4 left-4 flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center">
-            <Check className="h-5 w-5 text-white" />
-          </div>
-          <div className="h-1 w-24 bg-green-500"></div>
-          <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center">
-            <Check className="h-5 w-5 text-white" />
-          </div>
-        </div>
+        {/* Go Back button */}
+        {onGoBack && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="absolute top-4 left-4 bg-white/80 hover:bg-white rounded-full h-10 w-10"
+            onClick={onGoBack}
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+        )}
       </div>
 
       {/* Order Details */}
