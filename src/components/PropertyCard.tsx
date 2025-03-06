@@ -7,6 +7,7 @@ import { formatCurrency } from "../utils/formatters";
 import { useSavedProperties } from "../contexts/SavedPropertiesContext";
 import { Badge } from "@/components/ui/badge";
 import { InvestModal } from "./investment/InvestModal";
+import { toast } from "sonner";
 
 interface PropertyCardProps {
   property: Property;
@@ -21,12 +22,20 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
     ((property.totalSupply - property.availableTokens) / property.totalSupply) * 100
   );
 
+  // Determine if property is sold out
+  const isSoldOut = property.availableTokens === 0 || property.status === "Fully Funded";
+
   // Handler to save the property
   const handleSaveProperty = () => {
     saveProperty(property);
   };
 
   const handleOpenInvestModal = () => {
+    // Don't allow investment if sold out
+    if (isSoldOut) {
+      toast.info("This property is sold out");
+      return;
+    }
     console.log("Opening investment modal for property:", property);
     setShowInvestModal(true);
   };
@@ -57,7 +66,7 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
           </div>
           
           <div className="absolute top-3 right-3 flex gap-2">
-            {property.status === "Fully Funded" && (
+            {isSoldOut && (
               <div className="bg-red-500 text-white text-xs font-medium px-3 py-1.5 rounded-full">
                 Sold Out
               </div>
@@ -139,19 +148,24 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
             <Button 
               onClick={handleOpenInvestModal}
               variant="outline" 
-              className="rounded-full border-accent/20 text-accent hover:bg-accent/5 transition-all flex-1"
+              className={`rounded-full border-accent/20 text-accent hover:bg-accent/5 transition-all flex-1 ${
+                isSoldOut ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
+              disabled={isSoldOut}
             >
-              Invest Now
+              {isSoldOut ? "Sold Out" : "Invest Now"}
             </Button>
           </div>
         </div>
       </div>
       
-      <InvestModal 
-        property={property}
-        isOpen={showInvestModal}
-        onClose={handleCloseInvestModal}
-      />
+      {!isSoldOut && (
+        <InvestModal 
+          property={property}
+          isOpen={showInvestModal}
+          onClose={handleCloseInvestModal}
+        />
+      )}
     </>
   );
 };

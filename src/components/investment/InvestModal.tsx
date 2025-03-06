@@ -120,6 +120,44 @@ export function InvestModal({ property, isOpen, onClose }: InvestModalProps) {
     setStep('payment');
   };
 
+  // Render the appropriate step directly without transitions
+  let content;
+  if (step === 'amount') {
+    content = (
+      <InvestAmount
+        property={property}
+        details={propertyDetails}
+        amount={amount}
+        shares={shares}
+        onAmountChange={handleAmountChange}
+        onProceed={proceedToPayment}
+      />
+    );
+  } else if (step === 'payment') {
+    content = (
+      <PaymentMethod
+        accounts={accounts}
+        selectedAccount={selectedAccount}
+        loading={loadingAccounts}
+        processing={processingPayment}
+        onSelectAccount={setSelectedAccount}
+        onSubmit={handleSubmitPayment}
+        onContinue={handleContinueToConfirmation}
+      />
+    );
+  } else {
+    content = (
+      <OrderConfirmation
+        property={property}
+        amount={Number(amount)}
+        selectedAccount={accounts.find(acc => acc.id === selectedAccount)}
+        processing={processingPayment}
+        onConfirm={handleSubmitPayment}
+        onGoBack={handleGoBackToPayment}
+      />
+    );
+  }
+
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden">
@@ -140,35 +178,7 @@ export function InvestModal({ property, isOpen, onClose }: InvestModalProps) {
           </div>
         )}
 
-        {step === 'amount' ? (
-          <InvestAmount
-            property={property}
-            details={propertyDetails}
-            amount={amount}
-            shares={shares}
-            onAmountChange={handleAmountChange}
-            onProceed={proceedToPayment}
-          />
-        ) : step === 'payment' ? (
-          <PaymentMethod
-            accounts={accounts}
-            selectedAccount={selectedAccount}
-            loading={loadingAccounts}
-            processing={processingPayment}
-            onSelectAccount={setSelectedAccount}
-            onSubmit={handleSubmitPayment}
-            onContinue={handleContinueToConfirmation}
-          />
-        ) : (
-          <OrderConfirmation
-            property={property}
-            amount={Number(amount)}
-            selectedAccount={accounts.find(acc => acc.id === selectedAccount)}
-            processing={processingPayment}
-            onConfirm={handleSubmitPayment}
-            onGoBack={handleGoBackToPayment}
-          />
-        )}
+        {content}
       </DialogContent>
     </Dialog>
   );

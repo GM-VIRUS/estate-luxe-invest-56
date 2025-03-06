@@ -22,7 +22,7 @@ interface OrderConfirmationProps {
   selectedAccount: PlaidAccount | undefined;
   processing: boolean;
   onConfirm: () => void;
-  onGoBack?: () => void; // Add this prop for going back
+  onGoBack: () => void; // This prop is now required
 }
 
 export function OrderConfirmation({
@@ -68,17 +68,15 @@ export function OrderConfirmation({
           alt={property.title}
           className="w-full h-full object-cover"
         />
-        {/* Go Back button */}
-        {onGoBack && (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="absolute top-4 left-4 bg-white/80 hover:bg-white rounded-full h-10 w-10"
-            onClick={onGoBack}
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-        )}
+        {/* Go Back button - Always visible now */}
+        <Button
+          variant="ghost"
+          size="icon"
+          className="absolute top-4 left-4 bg-white/80 hover:bg-white rounded-full h-10 w-10"
+          onClick={onGoBack}
+        >
+          <ArrowLeft className="h-5 w-5" />
+        </Button>
       </div>
 
       {/* Order Details */}
@@ -112,8 +110,6 @@ export function OrderConfirmation({
                 'Not selected'}
             </span>
           </div>
-          
-          {/* Removed the Available Balance display here */}
         </div>
 
         <div className="flex justify-between items-center mb-8">
