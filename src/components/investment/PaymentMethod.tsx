@@ -1,5 +1,5 @@
 
-import { CreditCard, Plus, Check, DollarSign } from "lucide-react";
+import { CreditCard, Plus, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";

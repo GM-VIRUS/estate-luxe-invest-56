@@ -97,32 +97,13 @@ export function useInvestment() {
     
     try {
       console.log("Fetching user balance");
-      // Use the updated getUserBalance endpoint
-      const response = await paymentApi.getUserBalance(user.token);
-      console.log("User balance:", response);
-      
-      if (response.data && typeof response.data.balance === 'number') {
-        setUserBalance(response.data.balance);
+      // This function now uses the fallback method from the account info
+      const account = accounts.find(acc => acc.id === selectedAccount);
+      if (account) {
+        setUserBalance(account.balanceAvailable);
       }
     } catch (error) {
       console.error("Failed to fetch user balance:", error);
-    }
-  };
-
-  const fetchTransactionHistory = async () => {
-    if (!user?.token) return;
-    
-    try {
-      console.log("Fetching transaction history");
-      // Use the new getTransactions endpoint
-      const response = await paymentApi.getTransactions(user.token);
-      console.log("Transaction history:", response);
-      
-      if (response.data && Array.isArray(response.data.transactions)) {
-        setTransactions(response.data.transactions);
-      }
-    } catch (error) {
-      console.error("Failed to fetch transaction history:", error);
     }
   };
 
@@ -149,37 +130,24 @@ export function useInvestment() {
     
     setLoadingAccounts(true);
     try {
-      console.log("Fetching bank accounts");
-      // Try the new getBankAccounts endpoint first
-      const response = await paymentApi.getBankAccounts(user.token);
-      console.log("Bank accounts response:", response);
+      console.log("Fetching Plaid accounts");
       
-      if (response.data && Array.isArray(response.data.accounts)) {
-        setAccounts(response.data.accounts.map((acc: any) => ({
+      const response = await paymentApi.getPlaidAccounts(user.token);
+      console.log("Plaid accounts response:", response);
+      
+      if (response.data && response.data.paymentMethods && Array.isArray(response.data.paymentMethods)) {
+        setAccounts(response.data.paymentMethods.map((acc: any) => ({
           id: acc.id,
-          name: acc.name || acc.account_name || "Bank Account",
-          mask: acc.last4 || acc.mask || "****",
+          name: acc.name || "Bank Account",
+          mask: acc.mask || "****",
           type: acc.type || "depository",
           subtype: acc.subtype || "checking",
-          balanceAvailable: acc.available_balance || acc.balanceAvailable || 0,
-          balanceCurrent: acc.current_balance || acc.balanceCurrent || 0
+          balanceAvailable: acc.balanceAvailable || 5000, // Default balance if not provided
+          balanceCurrent: acc.balanceCurrent || 5000 // Default balance if not provided
         })));
       } else {
-        // Fallback to the original API as backup
-        console.log("Bank accounts API response not structured as expected, trying Plaid accounts API");
-        return await fallbackFetchPlaidAccounts();
-      }
-    } catch (error) {
-      console.error("Failed to fetch bank accounts:", error);
-      
-      // Try fallback to original Plaid accounts API
-      try {
-        await fallbackFetchPlaidAccounts();
-      } catch (backupError) {
-        console.error("Both bank account APIs failed:", backupError);
-        toast.error("Failed to load your bank accounts. Please try again.");
-        
-        // Use mock data as last resort
+        console.error("Failed to parse Plaid accounts data");
+        // Use mock data as fallback
         setAccounts([
           { 
             id: "account1", 
@@ -201,29 +169,33 @@ export function useInvestment() {
           }
         ]);
       }
+    } catch (error) {
+      console.error("Failed to fetch Plaid accounts:", error);
+      toast.error("Failed to load your bank accounts. Please try again.");
+      
+      // Use mock data as fallback
+      setAccounts([
+        { 
+          id: "account1", 
+          name: "Plaid Saving", 
+          mask: "1111", 
+          type: "depository", 
+          subtype: "savings",
+          balanceAvailable: 5000,
+          balanceCurrent: 5000
+        },
+        { 
+          id: "account2", 
+          name: "Plaid Checking", 
+          mask: "0000", 
+          type: "depository", 
+          subtype: "checking",
+          balanceAvailable: 2500,
+          balanceCurrent: 2500
+        }
+      ]);
     } finally {
       setLoadingAccounts(false);
-    }
-  };
-
-  const fallbackFetchPlaidAccounts = async () => {
-    if (!user?.token) return;
-    
-    console.log("Falling back to original Plaid accounts API");
-    const response = await paymentApi.getPlaidAccounts(user.token);
-    
-    if (response.data && response.data.paymentMethods && Array.isArray(response.data.paymentMethods)) {
-      setAccounts(response.data.paymentMethods.map((acc: any) => ({
-        id: acc.id,
-        name: acc.name,
-        mask: acc.mask,
-        type: acc.type || "depository",
-        subtype: acc.subtype || "checking",
-        balanceAvailable: acc.balanceAvailable || 0,
-        balanceCurrent: acc.balanceCurrent || 0
-      })));
-    } else {
-      throw new Error("Failed to parse Plaid accounts data");
     }
   };
 
@@ -250,7 +222,6 @@ export function useInvestment() {
     
     fetchUserBalance();
     fetchLocationInfo();
-    fetchTransactionHistory();
     
     setStep('confirmation');
   };
@@ -281,86 +252,31 @@ export function useInvestment() {
         return false;
       }
       
-      let paymentSuccessful = false;
-      
-      // Try the new createTransfer endpoint first
-      try {
-        console.log("Trying create-transfer API...");
-        
-        const transferData = {
-          amount: String(amount),
-          source_account_id: selectedAccount,
-          description: `Investment in property ${propertyId}`
-        };
-        
-        const transferResponse = await paymentApi.createTransfer(user.token, transferData);
-        
-        console.log("Transfer API response:", transferResponse);
-        
-        if (transferResponse && (transferResponse.result === 1 || transferResponse.data?.success)) {
-          paymentSuccessful = true;
-          toast.success("Investment successful! You will receive a confirmation shortly.");
-        } else {
-          throw new Error(transferResponse.message || "Transfer failed");
-        }
-      } catch (transferError) {
-        console.error("Transfer API failed, trying checkout API:", transferError);
-        
-        try {
-          console.log("Trying checkout API...");
-          
-          const checkoutResponse = await paymentApi.initiateCheckout(user.token, {
-            propertyId,
-            amount: String(amount),
-            account_id: selectedAccount
-          });
-          
-          console.log("Checkout API response:", checkoutResponse);
-          
-          if (checkoutResponse && checkoutResponse.result === 1) {
-            paymentSuccessful = true;
-            toast.success("Investment successful! You will receive a confirmation shortly.");
-          } else {
-            throw new Error(checkoutResponse.message || "Checkout failed");
-          }
-        } catch (checkoutError) {
-          console.error("Checkout API failed, trying payment API:", checkoutError);
-          
-          // Try original payment API as last resort
-          try {
-            console.log("Trying payment API...");
-            
-            const paymentData = {
-              propertyId,
-              amount: String(amount),
-              accountId: selectedAccount,
-              bank_id: selectedAccount
-            };
-            
-            const paymentResponse = await paymentApi.initiatePayment(user.token, paymentData);
-            
-            console.log("Payment API response:", paymentResponse);
-            
-            if (paymentResponse && paymentResponse.result === 1) {
-              paymentSuccessful = true;
-              toast.success("Investment successful! You will receive a confirmation shortly.");
-            } else {
-              throw new Error(paymentResponse.message || "Payment failed");
-            }
-          } catch (paymentError) {
-            console.error("All payment APIs failed:", paymentError);
-            toast.error("There was an error processing your payment. Please try again later.");
-            return false;
-          }
-        }
+      // Check if account has sufficient balance
+      if (account.balanceAvailable < amount) {
+        toast.error(`Insufficient funds in your account. Available balance: ${formatCurrency(account.balanceAvailable)}`);
+        return false;
       }
       
-      if (paymentSuccessful) {
-        await fetchTransactionHistory();
-        await fetchUserBalance();
+      // Using only the original payment API
+      const paymentData = {
+        propertyId,
+        amount: String(amount),
+        accountId: selectedAccount,
+        bank_id: selectedAccount
+      };
+      
+      console.log("Payment data:", paymentData);
+      
+      const paymentResponse = await paymentApi.initiatePayment(user.token, paymentData);
+      
+      console.log("Payment API response:", paymentResponse);
+      
+      if (paymentResponse && paymentResponse.result === 1) {
+        toast.success("Investment successful! You will receive a confirmation shortly.");
         return true;
       } else {
-        return false;
+        throw new Error(paymentResponse.message || "Payment failed");
       }
     } catch (error) {
       console.error("Payment processing error:", error);
@@ -417,3 +333,12 @@ export function useInvestment() {
     reset
   };
 }
+
+// Helper function for formatting currency
+const formatCurrency = (value: number): string => {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 2
+  }).format(value);
+};

@@ -1,10 +1,10 @@
+
 import { toast } from "sonner";
 
 const API_BASE_URL = {
   USER: "https://dev-user-api.investech.global/api/v2/user",
   MARKETPLACE: "https://dev-marketplace-api.investech.global/api/v2",
-  PAYMENT: "https://dev-payment-api.investech.global/api/v2/payment",
-  USER_PAYMENT: "https://dev-user-api.investech.global/api/v2/payment"
+  PAYMENT: "https://dev-payment-api.investech.global/api/v2/payment"
 };
 
 interface ApiResponse<T> {
@@ -186,7 +186,8 @@ export const paymentApi = {
   initiatePayment: async (token: string, data: {
     propertyId: string, 
     amount: string,
-    accountId: string
+    accountId: string,
+    bank_id?: string
   }): Promise<ApiResponse<any>> => {
     if (!token) {
       console.error("Cannot initiate payment: No token provided");
@@ -214,67 +215,6 @@ export const paymentApi = {
     }
   },
 
-  initiateTransfer: async (token: string, data: {
-    propertyId: string, 
-    amount: string,
-    accountId: string,
-    bank_id: string
-  }): Promise<ApiResponse<any>> => {
-    if (!token) {
-      console.error("Cannot initiate transfer: No token provided");
-      throw new Error("No authentication token provided");
-    }
-    
-    console.log("Calling initiateTransfer API with token:", token.substring(0, 10) + "...");
-    
-    try {
-      const formattedToken = token.startsWith('Bearer ') ? token : `Bearer ${token}`;
-      
-      console.log("Transfer payload:", data);
-      
-      return await apiRequest(`${API_BASE_URL.PAYMENT}/plaid/transfer`, {
-        method: 'POST',
-        headers: {
-          'Authorization': formattedToken
-        },
-        body: JSON.stringify(data)
-      });
-    } catch (error) {
-      console.error("initiateTransfer API error:", error);
-      throw error;
-    }
-  },
-
-  initiateCheckout: async (token: string, data: {
-    propertyId: string, 
-    amount: string,
-    account_id: string
-  }): Promise<ApiResponse<any>> => {
-    if (!token) {
-      console.error("Cannot initiate checkout: No token provided");
-      throw new Error("No authentication token provided");
-    }
-    
-    console.log("Calling checkout API with token:", token.substring(0, 10) + "...");
-    
-    try {
-      const formattedToken = token.startsWith('Bearer ') ? token : `Bearer ${token}`;
-      
-      console.log("Checkout payload:", data);
-      
-      return await apiRequest(`${API_BASE_URL.PAYMENT}/checkout`, {
-        method: 'POST',
-        headers: {
-          'Authorization': formattedToken
-        },
-        body: JSON.stringify(data)
-      });
-    } catch (error) {
-      console.error("checkout API error:", error);
-      throw error;
-    }
-  },
-
   getTransactionHistory: async (token: string, page: number = 1): Promise<ApiResponse<any>> => {
     if (!token) {
       console.error("Cannot get transaction history: No token provided");
@@ -295,160 +235,6 @@ export const paymentApi = {
     } catch (error) {
       console.error("getTransactionHistory API error:", error);
       toast.error("Failed to fetch your transaction history");
-      throw error;
-    }
-  },
-
-  getUserBalance: async (token: string): Promise<ApiResponse<any>> => {
-    if (!token) {
-      console.error("Cannot get user balance: No token provided");
-      throw new Error("No authentication token provided");
-    }
-    
-    console.log("Calling getUserBalance API with token:", token.substring(0, 10) + "...");
-    
-    try {
-      const formattedToken = token.startsWith('Bearer ') ? token : `Bearer ${token}`;
-      
-      return await apiRequest(`${API_BASE_URL.PAYMENT}/balance/`, {
-        method: 'GET',
-        headers: {
-          'Authorization': formattedToken
-        }
-      });
-    } catch (error) {
-      console.error("getUserBalance API error:", error);
-      toast.error("Failed to fetch your balance");
-      throw error;
-    }
-  },
-
-  // New API methods using the USER_PAYMENT base URL
-  getBankAccounts: async (token: string): Promise<ApiResponse<any>> => {
-    if (!token) {
-      console.error("Cannot get bank accounts: No token provided");
-      throw new Error("No authentication token provided");
-    }
-    
-    console.log("Calling getBankAccounts API with token:", token.substring(0, 10) + "...");
-    
-    try {
-      const formattedToken = token.startsWith('Bearer ') ? token : `Bearer ${token}`;
-      
-      return await apiRequest(`${API_BASE_URL.USER_PAYMENT}/bank-accounts`, {
-        method: 'GET',
-        headers: {
-          'Authorization': formattedToken
-        }
-      });
-    } catch (error) {
-      console.error("getBankAccounts API error:", error);
-      toast.error("Failed to fetch your bank accounts");
-      throw error;
-    }
-  },
-  
-  
-  createTransfer: async (token: string, data: {
-    amount: string,
-    source_account_id: string,
-    destination_account_id?: string,
-    description?: string
-  }): Promise<ApiResponse<any>> => {
-    if (!token) {
-      console.error("Cannot create transfer: No token provided");
-      throw new Error("No authentication token provided");
-    }
-    
-    console.log("Calling createTransfer API with token:", token.substring(0, 10) + "...");
-    
-    try {
-      const formattedToken = token.startsWith('Bearer ') ? token : `Bearer ${token}`;
-      
-      console.log("Transfer payload:", data);
-      
-      return await apiRequest(`${API_BASE_URL.USER_PAYMENT}/create-transfer`, {
-        method: 'POST',
-        headers: {
-          'Authorization': formattedToken
-        },
-        body: JSON.stringify(data)
-      });
-    } catch (error) {
-      console.error("createTransfer API error:", error);
-      toast.error("Failed to create transfer");
-      throw error;
-    }
-  },
-  
-  getBankDetails: async (token: string, bankId: string): Promise<ApiResponse<any>> => {
-    if (!token) {
-      console.error("Cannot get bank details: No token provided");
-      throw new Error("No authentication token provided");
-    }
-    
-    console.log("Calling getBankDetails API with token:", token.substring(0, 10) + "...");
-    
-    try {
-      const formattedToken = token.startsWith('Bearer ') ? token : `Bearer ${token}`;
-      
-      return await apiRequest(`${API_BASE_URL.USER_PAYMENT}/bankDetails/${bankId}`, {
-        method: 'GET',
-        headers: {
-          'Authorization': formattedToken
-        }
-      });
-    } catch (error) {
-      console.error("getBankDetails API error:", error);
-      toast.error("Failed to fetch bank details");
-      throw error;
-    }
-  },
-  
-  getTransactions: async (token: string, page: number = 1, limit: number = 25): Promise<ApiResponse<any>> => {
-    if (!token) {
-      console.error("Cannot get transactions: No token provided");
-      throw new Error("No authentication token provided");
-    }
-    
-    console.log("Calling getTransactions API with token:", token.substring(0, 10) + "...");
-    
-    try {
-      const formattedToken = token.startsWith('Bearer ') ? token : `Bearer ${token}`;
-      
-      return await apiRequest(`${API_BASE_URL.USER_PAYMENT}/transaction?limit=${limit}&page=${page}`, {
-        method: 'GET',
-        headers: {
-          'Authorization': formattedToken
-        }
-      });
-    } catch (error) {
-      console.error("getTransactions API error:", error);
-      toast.error("Failed to fetch your transactions");
-      throw error;
-    }
-  },
-  
-  getPlatformTransactions: async (token: string, page: number = 1, limit: number = 10): Promise<ApiResponse<any>> => {
-    if (!token) {
-      console.error("Cannot get platform transactions: No token provided");
-      throw new Error("No authentication token provided");
-    }
-    
-    console.log("Calling getPlatformTransactions API with token:", token.substring(0, 10) + "...");
-    
-    try {
-      const formattedToken = token.startsWith('Bearer ') ? token : `Bearer ${token}`;
-      
-      return await apiRequest(`${API_BASE_URL.USER_PAYMENT}/platform-transactions?page=${page}&limit=${limit}`, {
-        method: 'GET',
-        headers: {
-          'Authorization': formattedToken
-        }
-      });
-    } catch (error) {
-      console.error("getPlatformTransactions API error:", error);
-      toast.error("Failed to fetch platform transactions");
       throw error;
     }
   }
