@@ -1,3 +1,4 @@
+
 import { useState, useCallback } from "react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
@@ -96,6 +97,7 @@ export function useInvestment() {
     
     try {
       console.log("Fetching user balance");
+      // Use the updated getUserBalance endpoint
       const response = await paymentApi.getUserBalance(user.token);
       console.log("User balance:", response);
       
@@ -112,7 +114,8 @@ export function useInvestment() {
     
     try {
       console.log("Fetching transaction history");
-      const response = await paymentApi.getTransactionHistory(user.token);
+      // Use the new getTransactions endpoint
+      const response = await paymentApi.getTransactions(user.token);
       console.log("Transaction history:", response);
       
       if (response.data && Array.isArray(response.data.transactions)) {
@@ -146,22 +149,37 @@ export function useInvestment() {
     
     setLoadingAccounts(true);
     try {
-      console.log("Fetching Plaid accounts");
-      const response = await paymentApi.getPlaidAccounts(user.token);
-      console.log("Plaid accounts response:", response);
+      console.log("Fetching bank accounts");
+      // Try the new getBankAccounts endpoint first
+      const response = await paymentApi.getBankAccounts(user.token);
+      console.log("Bank accounts response:", response);
       
-      if (response.data && response.data.paymentMethods && Array.isArray(response.data.paymentMethods)) {
-        setAccounts(response.data.paymentMethods.map((acc: any) => ({
+      if (response.data && Array.isArray(response.data.accounts)) {
+        setAccounts(response.data.accounts.map((acc: any) => ({
           id: acc.id,
-          name: acc.name,
-          mask: acc.mask,
+          name: acc.name || acc.account_name || "Bank Account",
+          mask: acc.last4 || acc.mask || "****",
           type: acc.type || "depository",
           subtype: acc.subtype || "checking",
-          balanceAvailable: acc.balanceAvailable || 0,
-          balanceCurrent: acc.balanceCurrent || 0
+          balanceAvailable: acc.available_balance || acc.balanceAvailable || 0,
+          balanceCurrent: acc.current_balance || acc.balanceCurrent || 0
         })));
       } else {
-        console.log("API response structure not as expected, using fallback data");
+        // Fallback to the original API as backup
+        console.log("Bank accounts API response not structured as expected, trying Plaid accounts API");
+        return await fallbackFetchPlaidAccounts();
+      }
+    } catch (error) {
+      console.error("Failed to fetch bank accounts:", error);
+      
+      // Try fallback to original Plaid accounts API
+      try {
+        await fallbackFetchPlaidAccounts();
+      } catch (backupError) {
+        console.error("Both bank account APIs failed:", backupError);
+        toast.error("Failed to load your bank accounts. Please try again.");
+        
+        // Use mock data as last resort
         setAccounts([
           { 
             id: "account1", 
@@ -183,32 +201,29 @@ export function useInvestment() {
           }
         ]);
       }
-    } catch (error) {
-      console.error("Failed to fetch Plaid accounts:", error);
-      toast.error("Failed to load your bank accounts. Please try again.");
-      
-      setAccounts([
-        { 
-          id: "account1", 
-          name: "Plaid Saving", 
-          mask: "1111", 
-          type: "depository", 
-          subtype: "savings",
-          balanceAvailable: 5000,
-          balanceCurrent: 5000
-        },
-        { 
-          id: "account2", 
-          name: "Plaid Checking", 
-          mask: "0000", 
-          type: "depository", 
-          subtype: "checking",
-          balanceAvailable: 2500,
-          balanceCurrent: 2500
-        }
-      ]);
     } finally {
       setLoadingAccounts(false);
+    }
+  };
+
+  const fallbackFetchPlaidAccounts = async () => {
+    if (!user?.token) return;
+    
+    console.log("Falling back to original Plaid accounts API");
+    const response = await paymentApi.getPlaidAccounts(user.token);
+    
+    if (response.data && response.data.paymentMethods && Array.isArray(response.data.paymentMethods)) {
+      setAccounts(response.data.paymentMethods.map((acc: any) => ({
+        id: acc.id,
+        name: acc.name,
+        mask: acc.mask,
+        type: acc.type || "depository",
+        subtype: acc.subtype || "checking",
+        balanceAvailable: acc.balanceAvailable || 0,
+        balanceCurrent: acc.balanceCurrent || 0
+      })));
+    } else {
+      throw new Error("Failed to parse Plaid accounts data");
     }
   };
 
@@ -266,38 +281,78 @@ export function useInvestment() {
         return false;
       }
       
-      const paymentData = {
-        propertyId,
-        amount: String(amount),
-        accountId: selectedAccount,
-        bank_id: selectedAccount
-      };
-      
-      console.log("Payment details:", paymentData);
-      
       let paymentSuccessful = false;
       
+      // Try the new createTransfer endpoint first
       try {
-        console.log("Trying checkout API...");
+        console.log("Trying create-transfer API...");
         
-        const checkoutResponse = await paymentApi.initiateCheckout(user.token, {
-          propertyId,
+        const transferData = {
           amount: String(amount),
-          account_id: selectedAccount
-        });
+          source_account_id: selectedAccount,
+          description: `Investment in property ${propertyId}`
+        };
         
-        console.log("Checkout API response:", checkoutResponse);
+        const transferResponse = await paymentApi.createTransfer(user.token, transferData);
         
-        if (checkoutResponse && checkoutResponse.result === 1) {
+        console.log("Transfer API response:", transferResponse);
+        
+        if (transferResponse && (transferResponse.result === 1 || transferResponse.data?.success)) {
           paymentSuccessful = true;
           toast.success("Investment successful! You will receive a confirmation shortly.");
         } else {
-          throw new Error(checkoutResponse.message || "Checkout failed");
+          throw new Error(transferResponse.message || "Transfer failed");
         }
-      } catch (checkoutError) {
-        console.error("Checkout API failed:", checkoutError);
-        toast.error("There was an error processing your payment. Please try again later.");
-        return false;
+      } catch (transferError) {
+        console.error("Transfer API failed, trying checkout API:", transferError);
+        
+        try {
+          console.log("Trying checkout API...");
+          
+          const checkoutResponse = await paymentApi.initiateCheckout(user.token, {
+            propertyId,
+            amount: String(amount),
+            account_id: selectedAccount
+          });
+          
+          console.log("Checkout API response:", checkoutResponse);
+          
+          if (checkoutResponse && checkoutResponse.result === 1) {
+            paymentSuccessful = true;
+            toast.success("Investment successful! You will receive a confirmation shortly.");
+          } else {
+            throw new Error(checkoutResponse.message || "Checkout failed");
+          }
+        } catch (checkoutError) {
+          console.error("Checkout API failed, trying payment API:", checkoutError);
+          
+          // Try original payment API as last resort
+          try {
+            console.log("Trying payment API...");
+            
+            const paymentData = {
+              propertyId,
+              amount: String(amount),
+              accountId: selectedAccount,
+              bank_id: selectedAccount
+            };
+            
+            const paymentResponse = await paymentApi.initiatePayment(user.token, paymentData);
+            
+            console.log("Payment API response:", paymentResponse);
+            
+            if (paymentResponse && paymentResponse.result === 1) {
+              paymentSuccessful = true;
+              toast.success("Investment successful! You will receive a confirmation shortly.");
+            } else {
+              throw new Error(paymentResponse.message || "Payment failed");
+            }
+          } catch (paymentError) {
+            console.error("All payment APIs failed:", paymentError);
+            toast.error("There was an error processing your payment. Please try again later.");
+            return false;
+          }
+        }
       }
       
       if (paymentSuccessful) {

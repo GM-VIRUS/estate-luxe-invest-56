@@ -47,6 +47,13 @@ export function OrderConfirmation({
       return;
     }
     
+    // Check if account has sufficient balance
+    if (selectedAccount.balanceAvailable < totalAmount) {
+      toast.error(`Insufficient funds in your account. Available balance: ${formatCurrency(selectedAccount.balanceAvailable)}`);
+      return;
+    }
+    
+    // All checks passed, proceed with payment
     onConfirm();
   };
 
@@ -101,6 +108,15 @@ export function OrderConfirmation({
                 'Not selected'}
             </span>
           </div>
+          
+          {selectedAccount && (
+            <div className="flex justify-between items-center">
+              <span className="text-gray-600">Available Balance</span>
+              <span className={`font-medium ${selectedAccount.balanceAvailable < totalAmount ? 'text-red-600' : 'text-green-600'}`}>
+                {formatCurrency(selectedAccount.balanceAvailable)}
+              </span>
+            </div>
+          )}
         </div>
 
         <div className="flex justify-between items-center mb-8">
