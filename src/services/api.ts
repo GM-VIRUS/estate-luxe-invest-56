@@ -1,4 +1,3 @@
-
 import { toast } from "sonner";
 
 const API_BASE_URL = {
@@ -25,7 +24,8 @@ export async function apiRequest<T>(
     console.log(`Making API request to: ${endpoint}`);
     console.log(`Request options:`, {
       method: options.method || 'GET',
-      headers: options.headers
+      headers: options.headers,
+      body: options.body ? JSON.parse(options.body as string) : undefined
     });
     
     const response = await fetch(endpoint, {
@@ -184,7 +184,7 @@ export const paymentApi = {
   
   initiatePayment: async (token: string, data: {
     propertyId: string, 
-    amount: number, 
+    amount: string,
     accountId: string
   }): Promise<ApiResponse<any>> => {
     if (!token) {
@@ -198,31 +198,24 @@ export const paymentApi = {
       // Ensure token is properly formatted
       const formattedToken = token.startsWith('Bearer ') ? token : `Bearer ${token}`;
       
-      // Format the amount as a string as required by the API
-      const formattedData = {
-        ...data,
-        amount: String(data.amount)
-      };
-      
-      console.log("Payment payload:", formattedData);
+      console.log("Payment payload:", data);
       
       return await apiRequest(`${API_BASE_URL.PAYMENT}/plaid/payment`, {
         method: 'POST',
         headers: {
           'Authorization': formattedToken
         },
-        body: JSON.stringify(formattedData)
+        body: JSON.stringify(data)
       });
     } catch (error) {
       console.error("initiatePayment API error:", error);
-      toast.error("Failed to process your payment");
       throw error;
     }
   },
 
   initiateTransfer: async (token: string, data: {
     propertyId: string, 
-    amount: number, 
+    amount: string,
     accountId: string
   }): Promise<ApiResponse<any>> => {
     if (!token) {
@@ -235,24 +228,17 @@ export const paymentApi = {
     try {
       const formattedToken = token.startsWith('Bearer ') ? token : `Bearer ${token}`;
       
-      // Format the amount as a string for the API
-      const formattedData = {
-        ...data,
-        amount: String(data.amount)
-      };
-      
-      console.log("Transfer payload:", formattedData);
+      console.log("Transfer payload:", data);
       
       return await apiRequest(`${API_BASE_URL.PAYMENT}/plaid/transfer`, {
         method: 'POST',
         headers: {
           'Authorization': formattedToken
         },
-        body: JSON.stringify(formattedData)
+        body: JSON.stringify(data)
       });
     } catch (error) {
       console.error("initiateTransfer API error:", error);
-      toast.error("Failed to process your transfer");
       throw error;
     }
   },

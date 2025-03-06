@@ -66,17 +66,27 @@ export function InvestModal({ property, isOpen, onClose }: InvestModalProps) {
   const handleSubmitPayment = async () => {
     setPaymentError(null);
     
+    if (!selectedAccount) {
+      setPaymentError("Please select a payment method");
+      toast.error("Please select a payment method");
+      return;
+    }
+    
     // Use the property id correctly
     const apiPropertyId = property.id;
     
     try {
       console.log("Processing payment for property:", apiPropertyId);
+      console.log("Selected account:", selectedAccount);
+      console.log("Amount:", amount);
+      
       const success = await processPayment(apiPropertyId);
       if (success) {
         toast.success("Investment successful!");
         onClose();
       } else {
         setPaymentError("Payment processing failed. Please try again.");
+        toast.error("Payment processing failed. Please try again.");
       }
     } catch (error) {
       console.error("Payment processing error:", error);

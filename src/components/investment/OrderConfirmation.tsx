@@ -95,7 +95,7 @@ export function OrderConfirmation({
 
         <Button 
           onClick={onConfirm} 
-          disabled={processing}
+          disabled={processing || !selectedAccount}
           className="w-full h-12 rounded-full bg-blue-600 hover:bg-blue-700 text-white"
         >
           {processing ? (

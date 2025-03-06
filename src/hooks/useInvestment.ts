@@ -166,6 +166,7 @@ export function useInvestment() {
         })));
       } else {
         // Fallback sample data for development
+        console.log("API response structure not as expected, using fallback data");
         setAccounts([
           { 
             id: "account1", 
@@ -265,27 +266,26 @@ export function useInvestment() {
     setProcessingPayment(true);
     try {
       console.log("Initiating payment for property:", propertyId);
-      console.log("Payment details:", {
+      
+      const paymentData = {
         propertyId,
-        amount: Number(amount),
+        amount: String(amount), // IMPORTANT: Convert amount to string for API
         accountId: selectedAccount
-      });
+      };
+      
+      console.log("Payment details:", paymentData);
       
       let paymentSuccessful = false;
       
-      // Try the transfer API first since the payment API doesn't exist (404 error)
+      // Try the transfer API first
       try {
         console.log("Trying transfer API...");
         
-        const transferResponse = await paymentApi.initiateTransfer(user.token, {
-          propertyId,
-          amount: Number(amount),
-          accountId: selectedAccount
-        });
+        const transferResponse = await paymentApi.initiateTransfer(user.token, paymentData);
         
         console.log("Transfer API response:", transferResponse);
         
-        if (transferResponse.result === 1) {
+        if (transferResponse && transferResponse.result === 1) {
           paymentSuccessful = true;
           toast.success("Transfer successful! You will receive a confirmation shortly.");
         } else {
@@ -294,19 +294,15 @@ export function useInvestment() {
       } catch (transferError) {
         console.error("Transfer API failed:", transferError);
         
-        // As fallback, try the payment API (though it seems to be 404 in current setup)
+        // As fallback, try the payment API
         try {
           console.log("Transfer failed, trying payment API as fallback...");
           
-          const response = await paymentApi.initiatePayment(user.token, {
-            propertyId,
-            amount: Number(amount),
-            accountId: selectedAccount
-          });
+          const response = await paymentApi.initiatePayment(user.token, paymentData);
           
           console.log("Payment API response:", response);
           
-          if (response.result === 1) {
+          if (response && response.result === 1) {
             paymentSuccessful = true;
             toast.success("Investment successful! You will receive a confirmation shortly.");
           } else {
