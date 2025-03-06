@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Property } from "@/types/property";
 import { formatCurrency } from "@/utils/formatters";
 import { Spinner } from "@/components/ui/spinner";
+import { toast } from "sonner";
 
 interface PlaidAccount {
   id: string;
@@ -34,6 +35,20 @@ export function OrderConfirmation({
   const investTechFees = 0; // No fees for now
   const processingFees = 0; // No processing fees
   const totalAmount = amount;
+
+  const handleConfirmClick = () => {
+    if (!selectedAccount) {
+      toast.error("Please select a payment method first");
+      return;
+    }
+    
+    if (processing) {
+      toast.info("Your payment is already being processed");
+      return;
+    }
+    
+    onConfirm();
+  };
 
   return (
     <div className="flex flex-col h-full">
@@ -94,7 +109,7 @@ export function OrderConfirmation({
         </div>
 
         <Button 
-          onClick={onConfirm} 
+          onClick={handleConfirmClick} 
           disabled={processing || !selectedAccount}
           className="w-full h-12 rounded-full bg-blue-600 hover:bg-blue-700 text-white"
         >

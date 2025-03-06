@@ -90,8 +90,12 @@ export function InvestModal({ property, isOpen, onClose }: InvestModalProps) {
       }
     } catch (error) {
       console.error("Payment processing error:", error);
-      setPaymentError("There was an error processing your payment. Please try again.");
-      toast.error("There was an error processing your payment. Please try again.");
+      let errorMessage = "There was an error processing your payment. Please try again.";
+      if (error instanceof Error) {
+        errorMessage = error.message || errorMessage;
+      }
+      setPaymentError(errorMessage);
+      toast.error(errorMessage);
     }
   };
 

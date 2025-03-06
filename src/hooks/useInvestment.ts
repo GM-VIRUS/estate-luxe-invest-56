@@ -1,4 +1,3 @@
-
 import { useState, useCallback } from "react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
@@ -56,7 +55,6 @@ export function useInvestment() {
     try {
       console.log(`Fetching property details for ID: ${propertyId}`);
       
-      // Check if the ID is in a MongoDB-compatible format (24 hex characters)
       const isValidMongoId = /^[0-9a-fA-F]{24}$/.test(propertyId);
       
       if (isValidMongoId) {
@@ -75,7 +73,6 @@ export function useInvestment() {
           throw new Error("Property details not found in response");
         }
       } else {
-        // If not a valid MongoDB ID, use local property data
         console.log("Not a valid MongoDB ID, using local property data");
         setPropertyDetails({
           property: undefined,
@@ -154,7 +151,6 @@ export function useInvestment() {
       console.log("Plaid accounts response:", response);
       
       if (response.data && response.data.paymentMethods && Array.isArray(response.data.paymentMethods)) {
-        // Handle the actual API response structure
         setAccounts(response.data.paymentMethods.map((acc: any) => ({
           id: acc.id,
           name: acc.name,
@@ -165,7 +161,6 @@ export function useInvestment() {
           balanceCurrent: acc.balanceCurrent || 0
         })));
       } else {
-        // Fallback sample data for development
         console.log("API response structure not as expected, using fallback data");
         setAccounts([
           { 
@@ -192,7 +187,6 @@ export function useInvestment() {
       console.error("Failed to fetch Plaid accounts:", error);
       toast.error("Failed to load your bank accounts. Please try again.");
       
-      // Set fallback data for development
       setAccounts([
         { 
           id: "account1", 
@@ -239,7 +233,6 @@ export function useInvestment() {
       return;
     }
     
-    // Fetch additional data needed for confirmation
     fetchUserBalance();
     fetchLocationInfo();
     fetchTransactionHistory();
@@ -267,57 +260,47 @@ export function useInvestment() {
     try {
       console.log("Initiating payment for property:", propertyId);
       
+      const account = accounts.find(acc => acc.id === selectedAccount);
+      if (!account) {
+        toast.error("Selected account not found");
+        return false;
+      }
+      
       const paymentData = {
         propertyId,
-        amount: String(amount), // IMPORTANT: Convert amount to string for API
-        accountId: selectedAccount
+        amount: String(amount),
+        accountId: selectedAccount,
+        bank_id: selectedAccount
       };
       
       console.log("Payment details:", paymentData);
       
       let paymentSuccessful = false;
       
-      // Try the transfer API first
       try {
-        console.log("Trying transfer API...");
+        console.log("Trying checkout API...");
         
-        const transferResponse = await paymentApi.initiateTransfer(user.token, paymentData);
+        const checkoutResponse = await paymentApi.initiateCheckout(user.token, {
+          propertyId,
+          amount: String(amount),
+          account_id: selectedAccount
+        });
         
-        console.log("Transfer API response:", transferResponse);
+        console.log("Checkout API response:", checkoutResponse);
         
-        if (transferResponse && transferResponse.result === 1) {
+        if (checkoutResponse && checkoutResponse.result === 1) {
           paymentSuccessful = true;
-          toast.success("Transfer successful! You will receive a confirmation shortly.");
+          toast.success("Investment successful! You will receive a confirmation shortly.");
         } else {
-          throw new Error(transferResponse.message || "Transfer failed");
+          throw new Error(checkoutResponse.message || "Checkout failed");
         }
-      } catch (transferError) {
-        console.error("Transfer API failed:", transferError);
-        
-        // As fallback, try the payment API
-        try {
-          console.log("Transfer failed, trying payment API as fallback...");
-          
-          const response = await paymentApi.initiatePayment(user.token, paymentData);
-          
-          console.log("Payment API response:", response);
-          
-          if (response && response.result === 1) {
-            paymentSuccessful = true;
-            toast.success("Investment successful! You will receive a confirmation shortly.");
-          } else {
-            throw new Error(response.message || "Payment failed");
-          }
-        } catch (paymentError) {
-          console.error("Payment API also failed:", paymentError);
-          // Both APIs failed, show error to user
-          toast.error("There was an error processing your payment. Please try again later.");
-          return false;
-        }
+      } catch (checkoutError) {
+        console.error("Checkout API failed:", checkoutError);
+        toast.error("There was an error processing your payment. Please try again later.");
+        return false;
       }
       
       if (paymentSuccessful) {
-        // Fetch updated transaction history and balance after successful payment
         await fetchTransactionHistory();
         await fetchUserBalance();
         return true;

@@ -1,3 +1,4 @@
+
 import { toast } from "sonner";
 
 const API_BASE_URL = {
@@ -216,7 +217,8 @@ export const paymentApi = {
   initiateTransfer: async (token: string, data: {
     propertyId: string, 
     amount: string,
-    accountId: string
+    accountId: string,
+    bank_id: string
   }): Promise<ApiResponse<any>> => {
     if (!token) {
       console.error("Cannot initiate transfer: No token provided");
@@ -239,6 +241,36 @@ export const paymentApi = {
       });
     } catch (error) {
       console.error("initiateTransfer API error:", error);
+      throw error;
+    }
+  },
+
+  initiateCheckout: async (token: string, data: {
+    propertyId: string, 
+    amount: string,
+    account_id: string
+  }): Promise<ApiResponse<any>> => {
+    if (!token) {
+      console.error("Cannot initiate checkout: No token provided");
+      throw new Error("No authentication token provided");
+    }
+    
+    console.log("Calling checkout API with token:", token.substring(0, 10) + "...");
+    
+    try {
+      const formattedToken = token.startsWith('Bearer ') ? token : `Bearer ${token}`;
+      
+      console.log("Checkout payload:", data);
+      
+      return await apiRequest(`${API_BASE_URL.PAYMENT}/checkout`, {
+        method: 'POST',
+        headers: {
+          'Authorization': formattedToken
+        },
+        body: JSON.stringify(data)
+      });
+    } catch (error) {
+      console.error("checkout API error:", error);
       throw error;
     }
   },
