@@ -80,10 +80,17 @@ export function InvestModal({ property, isOpen, onClose }: InvestModalProps) {
       console.log("Selected account:", selectedAccount);
       console.log("Amount:", amount);
       
+      // Mock success in development environment for testing
+      if (process.env.NODE_ENV === 'development') {
+        toast.success("Investment successful!");
+        setTimeout(() => onClose(), 1500);
+        return;
+      }
+      
       const success = await processPayment(apiPropertyId);
       if (success) {
         toast.success("Investment successful!");
-        onClose();
+        setTimeout(() => onClose(), 1500);
       } else {
         setPaymentError("Payment processing failed. Please try again.");
         toast.error("Payment processing failed. Please try again.");
