@@ -24,7 +24,7 @@ export interface Property {
   bathrooms?: number;
   yearBuilt: number;
   amenities: string[];
-  status: "Available" | "Partially Funded" | "Fully Funded";
+  status: "Available" | "Partially Funded" | "Fully Funded" | "Sold Out";
 }
 
 export interface PriceHistory {
@@ -186,6 +186,6 @@ export const convertApiPropertyToProperty = (apiProperty: ApiProperty): Property
     squareFeet: 0,
     yearBuilt: new Date(apiProperty.startDate).getFullYear(),
     amenities: apiProperty.tags,
-    status: apiProperty.isSoldOut ? "Fully Funded" : (apiProperty.tokensSold > 0 ? "Partially Funded" : "Available")
+    status: apiProperty.isSoldOut ? "Sold Out" : (apiProperty.tokensSold > 0 ? "Partially Funded" : "Available")
   };
 };

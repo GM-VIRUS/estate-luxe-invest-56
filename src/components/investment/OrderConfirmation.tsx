@@ -68,14 +68,14 @@ export function OrderConfirmation({
           alt={property.title}
           className="w-full h-full object-cover"
         />
-        {/* Go Back button - Make more visible */}
+        {/* Go Back button - Made more visible with contrasting colors and larger size */}
         <Button
-          variant="secondary"
+          variant="default"
           size="sm"
-          className="absolute top-4 left-4 bg-white shadow-md hover:bg-gray-100 rounded-md h-9 flex items-center px-3"
+          className="absolute top-4 left-4 bg-white/90 hover:bg-white text-primary shadow-md rounded-full h-10 flex items-center px-4 border border-gray-200 font-medium"
           onClick={onGoBack}
         >
-          <ArrowLeft className="h-4 w-4 mr-1" />
+          <ArrowLeft className="h-5 w-5 mr-2" />
           <span>Back</span>
         </Button>
       </div>
