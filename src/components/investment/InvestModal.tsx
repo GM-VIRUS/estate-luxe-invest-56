@@ -39,6 +39,7 @@ export function InvestModal({ property, isOpen, onClose }: InvestModalProps) {
   } = useInvestment();
 
   const [isInitialized, setIsInitialized] = useState(false);
+  const [paymentError, setPaymentError] = useState<string | null>(null);
 
   useEffect(() => {
     if (isOpen && !isInitialized) {
@@ -56,12 +57,15 @@ export function InvestModal({ property, isOpen, onClose }: InvestModalProps) {
       const timer = setTimeout(() => {
         reset();
         setIsInitialized(false);
+        setPaymentError(null);
       }, 300);
       return () => clearTimeout(timer);
     }
   }, [isOpen, reset]);
 
   const handleSubmitPayment = async () => {
+    setPaymentError(null);
+    
     // Use the property id correctly
     const apiPropertyId = property.id;
     
@@ -71,9 +75,12 @@ export function InvestModal({ property, isOpen, onClose }: InvestModalProps) {
       if (success) {
         toast.success("Investment successful!");
         onClose();
+      } else {
+        setPaymentError("Payment processing failed. Please try again.");
       }
     } catch (error) {
       console.error("Payment processing error:", error);
+      setPaymentError("There was an error processing your payment. Please try again.");
       toast.error("There was an error processing your payment. Please try again.");
     }
   };
@@ -100,6 +107,12 @@ export function InvestModal({ property, isOpen, onClose }: InvestModalProps) {
         >
           <X className="h-5 w-5" />
         </button>
+
+        {paymentError && (
+          <div className="absolute top-12 left-0 right-0 bg-red-100 text-red-700 px-4 py-2 text-sm text-center">
+            {paymentError}
+          </div>
+        )}
 
         {step === 'amount' ? (
           <InvestAmount

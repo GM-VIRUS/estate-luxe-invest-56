@@ -198,12 +198,20 @@ export const paymentApi = {
       // Ensure token is properly formatted
       const formattedToken = token.startsWith('Bearer ') ? token : `Bearer ${token}`;
       
+      // Format the amount as a string as required by the API
+      const formattedData = {
+        ...data,
+        amount: String(data.amount)
+      };
+      
+      console.log("Payment payload:", formattedData);
+      
       return await apiRequest(`${API_BASE_URL.PAYMENT}/plaid/payment`, {
         method: 'POST',
         headers: {
           'Authorization': formattedToken
         },
-        body: JSON.stringify(data)
+        body: JSON.stringify(formattedData)
       });
     } catch (error) {
       console.error("initiatePayment API error:", error);
@@ -212,7 +220,11 @@ export const paymentApi = {
     }
   },
 
-  initiateTransfer: async (token: string, data: any): Promise<ApiResponse<any>> => {
+  initiateTransfer: async (token: string, data: {
+    propertyId: string, 
+    amount: number, 
+    accountId: string
+  }): Promise<ApiResponse<any>> => {
     if (!token) {
       console.error("Cannot initiate transfer: No token provided");
       throw new Error("No authentication token provided");
@@ -223,12 +235,20 @@ export const paymentApi = {
     try {
       const formattedToken = token.startsWith('Bearer ') ? token : `Bearer ${token}`;
       
+      // Format the amount as a string for the API
+      const formattedData = {
+        ...data,
+        amount: String(data.amount)
+      };
+      
+      console.log("Transfer payload:", formattedData);
+      
       return await apiRequest(`${API_BASE_URL.PAYMENT}/plaid/transfer`, {
         method: 'POST',
         headers: {
           'Authorization': formattedToken
         },
-        body: JSON.stringify(data)
+        body: JSON.stringify(formattedData)
       });
     } catch (error) {
       console.error("initiateTransfer API error:", error);
