@@ -1,8 +1,10 @@
+
 import { toast } from "sonner";
 
 const API_BASE_URL = {
   USER: "https://dev-user-api.investech.global/api/v2/user",
-  MARKETPLACE: "https://dev-marketplace-api.investech.global/api/v2"
+  MARKETPLACE: "https://dev-marketplace-api.investech.global/api/v2",
+  PAYMENT: "https://dev-payment-api.investech.global/api/v2/payment"
 };
 
 interface ApiResponse<T> {
@@ -144,5 +146,69 @@ export const userApi = {
 export const marketplaceApi = {
   getPropertyList: async (): Promise<ApiResponse<any>> => {
     return apiRequest(`${API_BASE_URL.MARKETPLACE}/marketplace/property-list?startIndex=1&itemsPerPage=100`);
+  },
+  
+  getPropertyDetails: async (propertyId: string): Promise<ApiResponse<any>> => {
+    return apiRequest(`${API_BASE_URL.MARKETPLACE}/marketplace/property-details/${propertyId}?request=rationale`);
+  }
+};
+
+/**
+ * Payment API service
+ */
+export const paymentApi = {
+  getPlaidAccounts: async (token: string): Promise<ApiResponse<any>> => {
+    if (!token) {
+      console.error("Cannot get Plaid accounts: No token provided");
+      throw new Error("No authentication token provided");
+    }
+    
+    console.log("Calling getPlaidAccounts API with token:", token.substring(0, 10) + "...");
+    
+    try {
+      // Ensure token is properly formatted
+      const formattedToken = token.startsWith('Bearer ') ? token : `Bearer ${token}`;
+      
+      return await apiRequest(`${API_BASE_URL.PAYMENT}/plaid/accounts`, {
+        method: 'GET',
+        headers: {
+          'Authorization': formattedToken
+        }
+      });
+    } catch (error) {
+      console.error("getPlaidAccounts API error:", error);
+      toast.error("Failed to fetch your bank accounts");
+      throw error;
+    }
+  },
+  
+  initiatePayment: async (token: string, data: {
+    propertyId: string, 
+    amount: number, 
+    accountId: string
+  }): Promise<ApiResponse<any>> => {
+    if (!token) {
+      console.error("Cannot initiate payment: No token provided");
+      throw new Error("No authentication token provided");
+    }
+    
+    console.log("Calling initiatePayment API with token:", token.substring(0, 10) + "...");
+    
+    try {
+      // Ensure token is properly formatted
+      const formattedToken = token.startsWith('Bearer ') ? token : `Bearer ${token}`;
+      
+      return await apiRequest(`${API_BASE_URL.PAYMENT}/plaid/payment`, {
+        method: 'POST',
+        headers: {
+          'Authorization': formattedToken
+        },
+        body: JSON.stringify(data)
+      });
+    } catch (error) {
+      console.error("initiatePayment API error:", error);
+      toast.error("Failed to process your payment");
+      throw error;
+    }
   }
 };

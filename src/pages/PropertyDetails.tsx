@@ -11,6 +11,7 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
+import { InvestModal } from "@/components/investment/InvestModal";
 
 const PropertyDetails = () => {
   const { id } = useParams<{ id: string }>();
@@ -20,6 +21,7 @@ const PropertyDetails = () => {
   const [isLoaded, setIsLoaded] = useState(false);
   const { saveProperty, isSaved } = useSavedProperties();
   const [isSharing, setIsSharing] = useState(false);
+  const [showInvestModal, setShowInvestModal] = useState(false);
 
   useEffect(() => {
     if (id && properties) {
@@ -49,6 +51,14 @@ const PropertyDetails = () => {
         setIsSharing(false);
       }, 2000);
     }
+  };
+
+  const handleOpenInvestModal = () => {
+    setShowInvestModal(true);
+  };
+
+  const handleCloseInvestModal = () => {
+    setShowInvestModal(false);
   };
 
   if (isLoadingProperties) {
@@ -162,7 +172,10 @@ const PropertyDetails = () => {
                 />
                 {isSaved(property.id) ? "Saved" : "Save"}
               </Button>
-              <Button className="rounded-full bg-accent hover:bg-accent/90 text-white">
+              <Button 
+                className="rounded-full bg-accent hover:bg-accent/90 text-white"
+                onClick={handleOpenInvestModal}
+              >
                 Invest Now
                 <ArrowRight className="h-4 w-4 ml-2" />
               </Button>
@@ -319,7 +332,10 @@ const PropertyDetails = () => {
                   </div>
                 </div>
                 
-                <Button className="w-full rounded-full mb-3 bg-accent text-white hover:bg-accent/90">
+                <Button
+                  onClick={handleOpenInvestModal}
+                  className="w-full rounded-full mb-3 bg-accent text-white hover:bg-accent/90"
+                >
                   Invest Now
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
@@ -334,6 +350,14 @@ const PropertyDetails = () => {
       </main>
       
       <Footer />
+      
+      {property && (
+        <InvestModal 
+          property={property}
+          isOpen={showInvestModal}
+          onClose={handleCloseInvestModal}
+        />
+      )}
     </div>
   );
 };
