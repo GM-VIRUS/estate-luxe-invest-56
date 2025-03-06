@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Property } from "../types/property";
@@ -22,8 +23,12 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
     ((property.totalSupply - property.availableTokens) / property.totalSupply) * 100
   );
 
-  // Determine if property is sold out
-  const isSoldOut = property.availableTokens === 0 || property.status === "Fully Funded";
+  // Determine if property is sold out - check multiple conditions
+  const isSoldOut = 
+    property.availableTokens === 0 || 
+    property.status === "Fully Funded" || 
+    property.status === "Sold Out" ||
+    progressPercentage >= 100;
 
   // Handler to save the property
   const handleSaveProperty = () => {
@@ -145,16 +150,24 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
                 <ExternalLink className="h-4 w-4 ml-1" />
               </Link>
             </Button>
-            <Button 
-              onClick={handleOpenInvestModal}
-              variant="outline" 
-              className={`rounded-full border-accent/20 text-accent hover:bg-accent/5 transition-all flex-1 ${
-                isSoldOut ? 'opacity-50 cursor-not-allowed' : ''
-              }`}
-              disabled={isSoldOut}
-            >
-              {isSoldOut ? "Sold Out" : "Invest Now"}
-            </Button>
+            
+            {isSoldOut ? (
+              <Button 
+                variant="outline" 
+                className="rounded-full border border-gray-200 text-gray-500 bg-gray-100 cursor-not-allowed flex-1"
+                disabled
+              >
+                Sold Out
+              </Button>
+            ) : (
+              <Button 
+                onClick={handleOpenInvestModal}
+                variant="outline" 
+                className="rounded-full border-accent/20 text-accent hover:bg-accent/5 transition-all flex-1"
+              >
+                Invest Now
+              </Button>
+            )}
           </div>
         </div>
       </div>

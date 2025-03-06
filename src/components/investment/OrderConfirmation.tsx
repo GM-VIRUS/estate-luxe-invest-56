@@ -22,7 +22,7 @@ interface OrderConfirmationProps {
   selectedAccount: PlaidAccount | undefined;
   processing: boolean;
   onConfirm: () => void;
-  onGoBack: () => void; // This prop is now required
+  onGoBack: () => void;
 }
 
 export function OrderConfirmation({
@@ -68,14 +68,15 @@ export function OrderConfirmation({
           alt={property.title}
           className="w-full h-full object-cover"
         />
-        {/* Go Back button - Always visible now */}
+        {/* Go Back button - Make more visible */}
         <Button
-          variant="ghost"
-          size="icon"
-          className="absolute top-4 left-4 bg-white/80 hover:bg-white rounded-full h-10 w-10"
+          variant="secondary"
+          size="sm"
+          className="absolute top-4 left-4 bg-white shadow-md hover:bg-gray-100 rounded-md h-9 flex items-center px-3"
           onClick={onGoBack}
         >
-          <ArrowLeft className="h-5 w-5" />
+          <ArrowLeft className="h-4 w-4 mr-1" />
+          <span>Back</span>
         </Button>
       </div>
 

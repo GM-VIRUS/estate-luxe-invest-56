@@ -1,4 +1,3 @@
-
 import { Property, PropertyDetails } from "../types/property";
 
 export const properties: Property[] = [
@@ -47,7 +46,7 @@ export const properties: Property[] = [
     totalValue: 1200000,
     pricePerToken: 500,
     totalSupply: 2400,
-    availableTokens: 1200,
+    availableTokens: 0,
     roi: 7.2,
     imageUrl: "https://images.unsplash.com/photo-1483058712412-4245e9b90334?auto=format&fit=crop&q=80",
     images: [
@@ -63,7 +62,7 @@ export const properties: Property[] = [
     bathrooms: 2,
     yearBuilt: 2015,
     amenities: ["Industrial Design", "Community Rooftop", "Bike Storage", "Pet Friendly"],
-    status: "Partially Funded"
+    status: "Sold Out"
   },
   {
     id: "prop-003",
@@ -166,7 +165,7 @@ export const properties: Property[] = [
     totalValue: 1800000,
     pricePerToken: 750,
     totalSupply: 2400,
-    availableTokens: 1100,
+    availableTokens: 0,
     roi: 6.8,
     imageUrl: "https://images.unsplash.com/photo-1473177104440-ffee2f376098?auto=format&fit=crop&q=80",
     images: [
@@ -181,7 +180,7 @@ export const properties: Property[] = [
     bathrooms: 2.5,
     yearBuilt: 1920,
     amenities: ["Original Hardwood Floors", "Garden Patio", "Smart Home Features", "Wine Cellar"],
-    status: "Partially Funded"
+    status: "Fully Funded"
   }
 ];
 

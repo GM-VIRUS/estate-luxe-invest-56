@@ -42,9 +42,9 @@ export function InvestModal({ property, isOpen, onClose }: InvestModalProps) {
   const [isInitialized, setIsInitialized] = useState(false);
   const [paymentError, setPaymentError] = useState<string | null>(null);
 
+  // Initialize data when modal opens
   useEffect(() => {
     if (isOpen && !isInitialized) {
-      // Use the property id correctly
       const apiPropertyId = property.id;
       console.log("Fetching property details with ID:", apiPropertyId);
       fetchPropertyDetails(apiPropertyId);
@@ -52,9 +52,9 @@ export function InvestModal({ property, isOpen, onClose }: InvestModalProps) {
     }
   }, [isOpen, property, isInitialized, fetchPropertyDetails]);
 
+  // Reset state when modal closes
   useEffect(() => {
     if (!isOpen) {
-      // Reset on close with a small delay to allow animation
       const timer = setTimeout(() => {
         reset();
         setIsInitialized(false);
@@ -73,7 +73,6 @@ export function InvestModal({ property, isOpen, onClose }: InvestModalProps) {
       return;
     }
     
-    // Use the property id correctly
     const apiPropertyId = property.id;
     
     try {
@@ -120,33 +119,37 @@ export function InvestModal({ property, isOpen, onClose }: InvestModalProps) {
     setStep('payment');
   };
 
-  // Render the appropriate step directly without transitions
-  let content;
-  if (step === 'amount') {
-    content = (
-      <InvestAmount
-        property={property}
-        details={propertyDetails}
-        amount={amount}
-        shares={shares}
-        onAmountChange={handleAmountChange}
-        onProceed={proceedToPayment}
-      />
-    );
-  } else if (step === 'payment') {
-    content = (
-      <PaymentMethod
-        accounts={accounts}
-        selectedAccount={selectedAccount}
-        loading={loadingAccounts}
-        processing={processingPayment}
-        onSelectAccount={setSelectedAccount}
-        onSubmit={handleSubmitPayment}
-        onContinue={handleContinueToConfirmation}
-      />
-    );
-  } else {
-    content = (
+  // Render the appropriate content based on the current step
+  const renderContent = () => {
+    if (step === 'amount') {
+      return (
+        <InvestAmount
+          property={property}
+          details={propertyDetails}
+          amount={amount}
+          shares={shares}
+          onAmountChange={handleAmountChange}
+          onProceed={proceedToPayment}
+        />
+      );
+    } 
+    
+    if (step === 'payment') {
+      return (
+        <PaymentMethod
+          accounts={accounts}
+          selectedAccount={selectedAccount}
+          loading={loadingAccounts}
+          processing={processingPayment}
+          onSelectAccount={setSelectedAccount}
+          onSubmit={handleSubmitPayment}
+          onContinue={handleContinueToConfirmation}
+        />
+      );
+    }
+    
+    // Default to confirmation step
+    return (
       <OrderConfirmation
         property={property}
         amount={Number(amount)}
@@ -156,7 +159,7 @@ export function InvestModal({ property, isOpen, onClose }: InvestModalProps) {
         onGoBack={handleGoBackToPayment}
       />
     );
-  }
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -178,7 +181,7 @@ export function InvestModal({ property, isOpen, onClose }: InvestModalProps) {
           </div>
         )}
 
-        {content}
+        {renderContent()}
       </DialogContent>
     </Dialog>
   );
