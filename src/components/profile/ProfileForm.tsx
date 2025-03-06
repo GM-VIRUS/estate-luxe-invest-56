@@ -83,39 +83,6 @@ const ProfileForm = ({
         </div>
         
         <div className="space-y-2">
-          <Label htmlFor="dob" className="flex items-center">
-            Date of Birth <span className="text-red-500 ml-1">*</span>
-          </Label>
-          <Input 
-            id="dob" 
-            name="dob"
-            type="text"
-            placeholder="MM/DD/YYYY"
-            value={userData.dob} 
-            onChange={onInputChange}
-            className="transition-all duration-200 focus:ring-2 focus:ring-accent"
-            readOnly={!isEditMode}
-            disabled={!isEditMode}
-          />
-        </div>
-        
-        <div className="space-y-2">
-          <Label htmlFor="ssn" className="flex items-center">
-            Social Security Number <span className="text-red-500 ml-1">*</span>
-          </Label>
-          <Input 
-            id="ssn" 
-            name="ssn"
-            placeholder="XXX-XX-XXXX"
-            value={userData.ssn} 
-            onChange={onInputChange}
-            className="transition-all duration-200 focus:ring-2 focus:ring-accent"
-            readOnly={!isEditMode}
-            disabled={!isEditMode}
-          />
-        </div>
-        
-        <div className="space-y-2">
           <Label htmlFor="phoneNumber" className="flex items-center">
             Phone Number
           </Label>
@@ -147,8 +114,8 @@ const ProfileForm = ({
         </div>
         
         <div className="space-y-2">
-          <Label htmlFor="address" className="flex items-center">
-            Address <span className="text-red-500 ml-1">*</span>
+          <Label htmlFor="address">
+            Address
           </Label>
           <Input 
             id="address" 
@@ -177,8 +144,8 @@ const ProfileForm = ({
         </div>
         
         <div className="space-y-2">
-          <Label htmlFor="city" className="flex items-center">
-            City <span className="text-red-500 ml-1">*</span>
+          <Label htmlFor="city">
+            City
           </Label>
           <Input 
             id="city" 
@@ -192,8 +159,8 @@ const ProfileForm = ({
         </div>
         
         <div className="space-y-2">
-          <Label htmlFor="zipCode" className="flex items-center">
-            Zip Code <span className="text-red-500 ml-1">*</span>
+          <Label htmlFor="zipCode">
+            Zip Code
           </Label>
           <Input 
             id="zipCode" 
@@ -207,8 +174,8 @@ const ProfileForm = ({
         </div>
         
         <div className="space-y-2">
-          <Label htmlFor="state" className="flex items-center">
-            State <span className="text-red-500 ml-1">*</span>
+          <Label htmlFor="state">
+            State
           </Label>
           {isEditMode ? (
             <Select 
@@ -291,8 +258,8 @@ const ProfileForm = ({
         </div>
         
         <div className="space-y-2">
-          <Label htmlFor="country" className="flex items-center">
-            Country <span className="text-red-500 ml-1">*</span>
+          <Label htmlFor="country">
+            Country
           </Label>
           {isEditMode ? (
             <Select 

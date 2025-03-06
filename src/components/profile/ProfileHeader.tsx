@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import ProfileImageUpload from "@/components/profile/ProfileImageUpload";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 interface ProfileHeaderProps {
   firstName: string;
@@ -33,12 +33,18 @@ const ProfileHeader = ({
     });
   };
 
+  // Get initials from first and last name
+  const getInitials = () => {
+    const firstInitial = firstName ? firstName.charAt(0).toUpperCase() : '';
+    const lastInitial = lastName ? lastName.charAt(0).toUpperCase() : '';
+    return `${firstInitial}${lastInitial}`;
+  };
+
   return (
     <div className="flex flex-col sm:flex-row gap-6 items-start sm:items-center">
-      <ProfileImageUpload 
-        currentImage={profileImage}
-        onImageUpdate={onImageUpdate}
-      />
+      <Avatar className="h-24 w-24 border-2 border-background shadow-md">
+        <AvatarFallback className="text-xl font-bold">{getInitials()}</AvatarFallback>
+      </Avatar>
       
       <div className="space-y-1 flex-1">
         <h2 className="text-2xl font-bold flex items-center gap-2">

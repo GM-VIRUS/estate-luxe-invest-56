@@ -10,8 +10,6 @@ interface UserDetails {
   email: string;
   phoneNumber: string;
   walletAddress: string | null;
-  dob: string;
-  ssn: string;
   address: string;
   addressLine2: string;
   city: string;
@@ -36,8 +34,6 @@ export function useUserProfile() {
     email: "",
     phoneNumber: "",
     walletAddress: "",
-    dob: "",
-    ssn: "",
     address: "",
     addressLine2: "",
     city: "",
@@ -71,8 +67,6 @@ export function useUserProfile() {
         userData.firstName !== originalData.firstName ||
         userData.lastName !== originalData.lastName ||
         userData.phoneNumber !== originalData.phoneNumber ||
-        userData.dob !== originalData.dob ||
-        userData.ssn !== originalData.ssn ||
         userData.address !== originalData.address ||
         userData.addressLine2 !== originalData.addressLine2 ||
         userData.city !== originalData.city ||
@@ -111,8 +105,6 @@ export function useUserProfile() {
             email: userInfo.email || "",
             phoneNumber: userInfo.mobileNumber?.toString() || "",
             walletAddress: userInfo.blockchainAddress || null,
-            dob: userInfo.dob ? new Date(userInfo.dob).toLocaleDateString() : "",
-            ssn: userInfo.ssn || "",
             address: userInfo.address1 || "",
             addressLine2: userInfo.address2 || "",
             city: userInfo.city || "",
@@ -172,7 +164,6 @@ export function useUserProfile() {
     
     try {
       const profileData = {
-        dob: userData.dob,
         countryCode: userData.countryCode || "+1",
         mobileNumber: parseInt(userData.phoneNumber.replace(/\D/g, '')) || 0,
         country: userData.country,
