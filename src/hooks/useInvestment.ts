@@ -48,6 +48,8 @@ export function useInvestment() {
   const [processingPayment, setProcessingPayment] = useState(false);
   const [loadingLocation, setLoadingLocation] = useState(false);
   const [locationInfo, setLocationInfo] = useState<LocationInfo | null>(null);
+  const [userBalance, setUserBalance] = useState<number | null>(null);
+  const [transactions, setTransactions] = useState<any[]>([]);
 
   const fetchPropertyDetails = useCallback(async (propertyId: string) => {
     setPropertyDetails(prev => ({ ...prev, loading: true, error: null }));
@@ -96,8 +98,13 @@ export function useInvestment() {
     if (!user?.token) return;
     
     try {
+      console.log("Fetching user balance");
       const response = await paymentApi.getUserBalance(user.token);
       console.log("User balance:", response);
+      
+      if (response.data && typeof response.data.balance === 'number') {
+        setUserBalance(response.data.balance);
+      }
     } catch (error) {
       console.error("Failed to fetch user balance:", error);
     }
@@ -107,8 +114,13 @@ export function useInvestment() {
     if (!user?.token) return;
     
     try {
+      console.log("Fetching transaction history");
       const response = await paymentApi.getTransactionHistory(user.token);
       console.log("Transaction history:", response);
+      
+      if (response.data && Array.isArray(response.data.transactions)) {
+        setTransactions(response.data.transactions);
+      }
     } catch (error) {
       console.error("Failed to fetch transaction history:", error);
     }
@@ -117,6 +129,7 @@ export function useInvestment() {
   const fetchLocationInfo = async () => {
     setLoadingLocation(true);
     try {
+      console.log("Fetching location info");
       const response = await fetch('https://ipinfo.io/json');
       const data = await response.json();
       setLocationInfo(data);
@@ -136,16 +149,20 @@ export function useInvestment() {
     
     setLoadingAccounts(true);
     try {
+      console.log("Fetching Plaid accounts");
       const response = await paymentApi.getPlaidAccounts(user.token);
-      if (response.data && Array.isArray(response.data)) {
-        setAccounts(response.data.map((acc: any) => ({
-          id: acc.account_id || acc.id,
+      console.log("Plaid accounts response:", response);
+      
+      if (response.data && response.data.paymentMethods && Array.isArray(response.data.paymentMethods)) {
+        // Handle the actual API response structure
+        setAccounts(response.data.paymentMethods.map((acc: any) => ({
+          id: acc.id,
           name: acc.name,
           mask: acc.mask,
-          type: acc.type,
-          subtype: acc.subtype,
-          balanceAvailable: acc.balances?.available || 0,
-          balanceCurrent: acc.balances?.current || 0
+          type: acc.type || "depository",
+          subtype: acc.subtype || "checking",
+          balanceAvailable: acc.balanceAvailable || 0,
+          balanceCurrent: acc.balanceCurrent || 0
         })));
       } else {
         // Fallback sample data for development
@@ -224,6 +241,7 @@ export function useInvestment() {
     // Fetch additional data needed for confirmation
     fetchUserBalance();
     fetchLocationInfo();
+    fetchTransactionHistory();
     
     setStep('confirmation');
   };
@@ -246,23 +264,53 @@ export function useInvestment() {
     
     setProcessingPayment(true);
     try {
-      const response = await paymentApi.initiatePayment(user.token, {
+      console.log("Initiating payment for property:", propertyId);
+      console.log("Payment details:", {
         propertyId,
         amount: Number(amount),
         accountId: selectedAccount
       });
       
-      if (response.result === 1) {
-        toast.success("Investment successful! You will receive a confirmation shortly.");
+      // Try the payment API first
+      try {
+        const response = await paymentApi.initiatePayment(user.token, {
+          propertyId,
+          amount: Number(amount),
+          accountId: selectedAccount
+        });
         
-        // Fetch updated transaction history after successful payment
-        fetchTransactionHistory();
+        console.log("Payment API response:", response);
         
-        return true;
-      } else {
-        toast.error(response.message || "Failed to process your investment");
-        return false;
+        if (response.result === 1) {
+          toast.success("Investment successful! You will receive a confirmation shortly.");
+        } else {
+          // If regular payment fails, try the transfer API
+          throw new Error(response.message || "Payment failed");
+        }
+      } catch (paymentError) {
+        console.log("Payment API failed, trying transfer API...");
+        
+        // Try the transfer API as fallback
+        const transferResponse = await paymentApi.initiateTransfer(user.token, {
+          propertyId,
+          amount: Number(amount),
+          accountId: selectedAccount
+        });
+        
+        console.log("Transfer API response:", transferResponse);
+        
+        if (transferResponse.result !== 1) {
+          throw new Error(transferResponse.message || "Transfer failed");
+        }
+        
+        toast.success("Transfer successful! You will receive a confirmation shortly.");
       }
+      
+      // Fetch updated transaction history and balance after successful payment
+      await fetchTransactionHistory();
+      await fetchUserBalance();
+      
+      return true;
     } catch (error) {
       console.error("Payment processing error:", error);
       toast.error("There was an error processing your payment. Please try again.");
@@ -292,6 +340,8 @@ export function useInvestment() {
       error: null
     });
     setLocationInfo(null);
+    setUserBalance(null);
+    setTransactions([]);
   };
 
   return {
@@ -305,6 +355,8 @@ export function useInvestment() {
     processingPayment,
     loadingLocation,
     locationInfo,
+    userBalance,
+    transactions,
     setSelectedAccount,
     handleAmountChange,
     fetchPropertyDetails,

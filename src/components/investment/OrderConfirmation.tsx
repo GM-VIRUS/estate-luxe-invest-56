@@ -50,7 +50,7 @@ export function OrderConfirmation({
           </div>
           <div className="h-1 w-24 bg-green-500"></div>
           <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center">
-            <span className="text-white font-medium">2</span>
+            <Check className="h-5 w-5 text-white" />
           </div>
         </div>
       </div>
@@ -100,7 +100,7 @@ export function OrderConfirmation({
         >
           {processing ? (
             <>
-              <Spinner className="mr-2" />
+              <Spinner className="mr-2" size="sm" />
               Processing...
             </>
           ) : (

@@ -2,6 +2,7 @@
 import { CreditCard, Plus, Check, DollarSign } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Spinner } from "@/components/ui/spinner";
 
 interface PlaidAccount {
   id: string;
@@ -20,6 +21,7 @@ interface PaymentMethodProps {
   processing: boolean;
   onSelectAccount: (accountId: string) => void;
   onSubmit: () => void;
+  onContinue: () => void; // Add this prop
 }
 
 export function PaymentMethod({
@@ -28,7 +30,8 @@ export function PaymentMethod({
   loading,
   processing,
   onSelectAccount,
-  onSubmit
+  onSubmit,
+  onContinue
 }: PaymentMethodProps) {
   if (loading) {
     return (
@@ -107,11 +110,18 @@ export function PaymentMethod({
       </div>
 
       <Button
-        onClick={onSubmit}
+        onClick={onContinue} // Changed to onContinue instead of onSubmit
         disabled={!selectedAccount || processing}
         className="w-full h-12 rounded-full bg-blue-600 hover:bg-blue-700 text-white"
       >
-        {processing ? "Processing..." : "Continue"}
+        {processing ? (
+          <>
+            <Spinner className="mr-2" size="sm" />
+            Processing...
+          </>
+        ) : (
+          "Continue"
+        )}
       </Button>
     </div>
   );

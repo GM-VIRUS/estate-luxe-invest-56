@@ -9,6 +9,7 @@ import { PaymentMethod } from "./PaymentMethod";
 import { Skeleton } from "@/components/ui/skeleton";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { OrderConfirmation } from "./OrderConfirmation";
+import { toast } from "sonner";
 
 interface InvestModalProps {
   property: Property;
@@ -27,10 +28,12 @@ export function InvestModal({ property, isOpen, onClose }: InvestModalProps) {
     loadingAccounts,
     processingPayment,
     loadingLocation,
+    locationInfo,
     setSelectedAccount,
     handleAmountChange,
     fetchPropertyDetails,
     proceedToPayment,
+    proceedToConfirmation,
     processPayment,
     reset
   } = useInvestment();
@@ -61,10 +64,27 @@ export function InvestModal({ property, isOpen, onClose }: InvestModalProps) {
   const handleSubmitPayment = async () => {
     // Use the property id correctly
     const apiPropertyId = property.id;
-    const success = await processPayment(apiPropertyId);
-    if (success) {
-      onClose();
+    
+    try {
+      console.log("Processing payment for property:", apiPropertyId);
+      const success = await processPayment(apiPropertyId);
+      if (success) {
+        toast.success("Investment successful!");
+        onClose();
+      }
+    } catch (error) {
+      console.error("Payment processing error:", error);
+      toast.error("There was an error processing your payment. Please try again.");
     }
+  };
+
+  const handleContinueToConfirmation = () => {
+    if (!selectedAccount) {
+      toast.error("Please select a payment method");
+      return;
+    }
+    
+    proceedToConfirmation();
   };
 
   return (
@@ -98,6 +118,7 @@ export function InvestModal({ property, isOpen, onClose }: InvestModalProps) {
             processing={processingPayment}
             onSelectAccount={setSelectedAccount}
             onSubmit={handleSubmitPayment}
+            onContinue={handleContinueToConfirmation}
           />
         ) : (
           <OrderConfirmation
