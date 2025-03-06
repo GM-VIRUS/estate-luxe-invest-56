@@ -15,8 +15,6 @@ interface UserDetails {
   email: string;
   phoneNumber: string;
   walletAddress: string | null;
-  dob: string;
-  ssn: string;
   address: string;
   addressLine2: string;
   city: string;
@@ -26,6 +24,8 @@ interface UserDetails {
   profileImage: string;
   countryCode?: string;
   stateCode?: string;
+  dob?: string; // Added to fix type errors
+  ssn?: string; // Added to fix type errors
 }
 
 interface ProfileFormProps {
@@ -294,6 +294,10 @@ const ProfileForm = ({
           )}
         </div>
       </div>
+      
+      {/* Hidden inputs to maintain the data for dob and ssn without displaying them */}
+      <input type="hidden" name="dob" value={userData.dob || ""} />
+      <input type="hidden" name="ssn" value={userData.ssn || ""} />
       
       {isEditMode && (
         <div className="flex justify-end">

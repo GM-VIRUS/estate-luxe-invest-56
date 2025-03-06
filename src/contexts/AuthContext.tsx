@@ -23,7 +23,7 @@ interface AuthContextType {
 }
 
 interface ProfileUpdateData {
-  dob: string;
+  dob?: string; // Made optional
   countryCode: string;
   mobileNumber: number;
   country: string;

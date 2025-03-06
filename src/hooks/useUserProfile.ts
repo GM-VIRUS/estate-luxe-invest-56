@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
@@ -19,6 +18,8 @@ interface UserDetails {
   profileImage: string;
   countryCode?: string;
   stateCode?: string;
+  dob?: string;
+  ssn?: string;
 }
 
 export function useUserProfile() {
@@ -42,12 +43,13 @@ export function useUserProfile() {
     country: "",
     profileImage: "/placeholder.svg",
     countryCode: "+1",
-    stateCode: ""
+    stateCode: "",
+    dob: "",
+    ssn: ""
   });
 
   const [originalData, setOriginalData] = useState<UserDetails>({...userData});
 
-  // This effect will run when the component mounts and whenever the user token changes
   useEffect(() => {
     console.log("useUserProfile hook initialized, checking for token");
     
@@ -60,7 +62,6 @@ export function useUserProfile() {
     }
   }, [user?.token]);
 
-  // This effect tracks changes between current and original data
   useEffect(() => {
     if (!isFetching) {
       const isChanged = 
@@ -74,7 +75,9 @@ export function useUserProfile() {
         userData.zipCode !== originalData.zipCode ||
         userData.country !== originalData.country ||
         userData.countryCode !== originalData.countryCode ||
-        userData.stateCode !== originalData.stateCode;
+        userData.stateCode !== originalData.stateCode ||
+        userData.dob !== originalData.dob ||
+        userData.ssn !== originalData.ssn;
       
       setIsModified(isChanged);
     }
@@ -95,7 +98,7 @@ export function useUserProfile() {
       console.log("User details API response:", response);
       
       if (response.result === 1 && response.data) {
-        const userInfo = response.data.user; // Access the user object inside data
+        const userInfo = response.data.user;
         console.log("Raw user info from API:", userInfo);
         
         if (userInfo) {
@@ -113,7 +116,9 @@ export function useUserProfile() {
             country: userInfo.country || "",
             profileImage: userInfo.profileImage || "/placeholder.svg",
             countryCode: userInfo.countryCode || "+1",
-            stateCode: userInfo.stateCode || ""
+            stateCode: userInfo.stateCode || "",
+            dob: userInfo.dob || "",
+            ssn: userInfo.ssn || ""
           };
   
           console.log("Processed user data:", details);
@@ -171,7 +176,8 @@ export function useUserProfile() {
         city: userData.city,
         zipCode: parseInt(userData.zipCode) || 0,
         address1: userData.address,
-        stateCode: userData.stateCode || getStateCode(userData.state)
+        stateCode: userData.stateCode || getStateCode(userData.state),
+        dob: userData.dob || ""
       };
       
       console.log("Sending profile update with data:", profileData);
