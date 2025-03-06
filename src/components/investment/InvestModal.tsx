@@ -1,12 +1,13 @@
 
 import { useEffect, useState } from "react";
 import { X } from "lucide-react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useInvestment } from "@/hooks/useInvestment";
 import { Property } from "@/types/property";
 import { InvestAmount } from "./InvestAmount";
 import { PaymentMethod } from "./PaymentMethod";
 import { Skeleton } from "@/components/ui/skeleton";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
 interface InvestModalProps {
   property: Property;
@@ -36,10 +37,13 @@ export function InvestModal({ property, isOpen, onClose }: InvestModalProps) {
 
   useEffect(() => {
     if (isOpen && !isInitialized) {
-      fetchPropertyDetails(property.id);
+      // Make sure we're using the MongoDB-style ID format
+      const apiPropertyId = property._id || property.id;
+      console.log("Fetching property details with ID:", apiPropertyId);
+      fetchPropertyDetails(apiPropertyId);
       setIsInitialized(true);
     }
-  }, [isOpen, property.id, isInitialized]);
+  }, [isOpen, property, isInitialized, fetchPropertyDetails]);
 
   useEffect(() => {
     if (!isOpen) {
@@ -50,10 +54,12 @@ export function InvestModal({ property, isOpen, onClose }: InvestModalProps) {
       }, 300);
       return () => clearTimeout(timer);
     }
-  }, [isOpen]);
+  }, [isOpen, reset]);
 
   const handleSubmitPayment = async () => {
-    const success = await processPayment(property.id);
+    // Make sure we're using the MongoDB-style ID format
+    const apiPropertyId = property._id || property.id;
+    const success = await processPayment(apiPropertyId);
     if (success) {
       onClose();
     }
@@ -62,6 +68,10 @@ export function InvestModal({ property, isOpen, onClose }: InvestModalProps) {
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden">
+        <VisuallyHidden asChild>
+          <DialogTitle>Invest in {property.title}</DialogTitle>
+        </VisuallyHidden>
+        
         <button
           onClick={onClose}
           className="absolute right-4 top-4 rounded-full p-1 bg-white/80 hover:bg-white text-gray-700 transition-all z-10"

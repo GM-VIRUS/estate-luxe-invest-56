@@ -1,8 +1,7 @@
-
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Property } from "../types/property";
-import { MapPin, TrendingUp, Star, ExternalLink, Heart } from "lucide-react";
+import { MapPin, TrendingUp, Star, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "../utils/formatters";
 import { useSavedProperties } from "../contexts/SavedPropertiesContext";
@@ -28,6 +27,7 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
   };
 
   const handleOpenInvestModal = () => {
+    console.log("Opening investment modal for property:", property);
     setShowInvestModal(true);
   };
 

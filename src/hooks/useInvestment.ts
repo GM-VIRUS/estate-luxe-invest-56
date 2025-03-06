@@ -40,19 +40,35 @@ export function useInvestment() {
   const fetchPropertyDetails = async (propertyId: string) => {
     setPropertyDetails(prev => ({ ...prev, loading: true, error: null }));
     try {
-      const response = await marketplaceApi.getPropertyDetails(propertyId);
-      if (response.data) {
+      console.log(`Fetching property details for ID: ${propertyId}`);
+      
+      // Check if the ID is in a MongoDB-compatible format (24 hex characters)
+      const isValidMongoId = /^[0-9a-fA-F]{24}$/.test(propertyId);
+      
+      if (isValidMongoId) {
+        const response = await marketplaceApi.getPropertyDetails(propertyId);
+        console.log("Property details API response:", response);
+        
+        if (response.data) {
+          setPropertyDetails({
+            property: response.data.property,
+            offeringAmount: response.data.offeringAmount || 0,
+            pricePerShare: response.data.pricePerShare || 1,
+            loading: false,
+            error: null
+          });
+        } else {
+          throw new Error("Property details not found in response");
+        }
+      } else {
+        // If not a valid MongoDB ID, use local property data
+        console.log("Not a valid MongoDB ID, using local property data");
         setPropertyDetails({
-          property: response.data.property,
-          offeringAmount: response.data.offeringAmount || 0,
-          pricePerShare: response.data.pricePerShare || 1,
+          property: undefined,
+          offeringAmount: 0,
+          pricePerShare: 1,
           loading: false,
           error: null
-        });
-      } else {
-        setPropertyDetails({
-          loading: false,
-          error: "Unable to load property details"
         });
       }
     } catch (error) {
