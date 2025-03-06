@@ -8,6 +8,7 @@ import { InvestAmount } from "./InvestAmount";
 import { PaymentMethod } from "./PaymentMethod";
 import { Skeleton } from "@/components/ui/skeleton";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
+import { OrderConfirmation } from "./OrderConfirmation";
 
 interface InvestModalProps {
   property: Property;
@@ -25,6 +26,7 @@ export function InvestModal({ property, isOpen, onClose }: InvestModalProps) {
     accounts,
     loadingAccounts,
     processingPayment,
+    loadingLocation,
     setSelectedAccount,
     handleAmountChange,
     fetchPropertyDetails,
@@ -37,8 +39,8 @@ export function InvestModal({ property, isOpen, onClose }: InvestModalProps) {
 
   useEffect(() => {
     if (isOpen && !isInitialized) {
-      // Make sure we're using the MongoDB-style ID format
-      const apiPropertyId = property._id || property.id;
+      // Use the property id correctly
+      const apiPropertyId = property.id;
       console.log("Fetching property details with ID:", apiPropertyId);
       fetchPropertyDetails(apiPropertyId);
       setIsInitialized(true);
@@ -57,8 +59,8 @@ export function InvestModal({ property, isOpen, onClose }: InvestModalProps) {
   }, [isOpen, reset]);
 
   const handleSubmitPayment = async () => {
-    // Make sure we're using the MongoDB-style ID format
-    const apiPropertyId = property._id || property.id;
+    // Use the property id correctly
+    const apiPropertyId = property.id;
     const success = await processPayment(apiPropertyId);
     if (success) {
       onClose();
@@ -88,7 +90,7 @@ export function InvestModal({ property, isOpen, onClose }: InvestModalProps) {
             onAmountChange={handleAmountChange}
             onProceed={proceedToPayment}
           />
-        ) : (
+        ) : step === 'payment' ? (
           <PaymentMethod
             accounts={accounts}
             selectedAccount={selectedAccount}
@@ -96,6 +98,14 @@ export function InvestModal({ property, isOpen, onClose }: InvestModalProps) {
             processing={processingPayment}
             onSelectAccount={setSelectedAccount}
             onSubmit={handleSubmitPayment}
+          />
+        ) : (
+          <OrderConfirmation
+            property={property}
+            amount={Number(amount)}
+            selectedAccount={accounts.find(acc => acc.id === selectedAccount)}
+            processing={processingPayment}
+            onConfirm={handleSubmitPayment}
           />
         )}
       </DialogContent>

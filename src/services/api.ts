@@ -210,5 +210,78 @@ export const paymentApi = {
       toast.error("Failed to process your payment");
       throw error;
     }
+  },
+
+  initiateTransfer: async (token: string, data: any): Promise<ApiResponse<any>> => {
+    if (!token) {
+      console.error("Cannot initiate transfer: No token provided");
+      throw new Error("No authentication token provided");
+    }
+    
+    console.log("Calling initiateTransfer API with token:", token.substring(0, 10) + "...");
+    
+    try {
+      const formattedToken = token.startsWith('Bearer ') ? token : `Bearer ${token}`;
+      
+      return await apiRequest(`${API_BASE_URL.PAYMENT}/plaid/transfer`, {
+        method: 'POST',
+        headers: {
+          'Authorization': formattedToken
+        },
+        body: JSON.stringify(data)
+      });
+    } catch (error) {
+      console.error("initiateTransfer API error:", error);
+      toast.error("Failed to process your transfer");
+      throw error;
+    }
+  },
+
+  getTransactionHistory: async (token: string, page: number = 1): Promise<ApiResponse<any>> => {
+    if (!token) {
+      console.error("Cannot get transaction history: No token provided");
+      throw new Error("No authentication token provided");
+    }
+    
+    console.log("Calling getTransactionHistory API with token:", token.substring(0, 10) + "...");
+    
+    try {
+      const formattedToken = token.startsWith('Bearer ') ? token : `Bearer ${token}`;
+      
+      return await apiRequest(`${API_BASE_URL.PAYMENT}/transaction/?page=${page}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': formattedToken
+        }
+      });
+    } catch (error) {
+      console.error("getTransactionHistory API error:", error);
+      toast.error("Failed to fetch your transaction history");
+      throw error;
+    }
+  },
+
+  getUserBalance: async (token: string): Promise<ApiResponse<any>> => {
+    if (!token) {
+      console.error("Cannot get user balance: No token provided");
+      throw new Error("No authentication token provided");
+    }
+    
+    console.log("Calling getUserBalance API with token:", token.substring(0, 10) + "...");
+    
+    try {
+      const formattedToken = token.startsWith('Bearer ') ? token : `Bearer ${token}`;
+      
+      return await apiRequest(`${API_BASE_URL.PAYMENT}/balance/`, {
+        method: 'GET',
+        headers: {
+          'Authorization': formattedToken
+        }
+      });
+    } catch (error) {
+      console.error("getUserBalance API error:", error);
+      toast.error("Failed to fetch your balance");
+      throw error;
+    }
   }
 };

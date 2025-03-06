@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { marketplaceApi, paymentApi } from "@/services/api";
@@ -23,9 +23,19 @@ interface PropertyDetails {
   error: string | null;
 }
 
+interface LocationInfo {
+  ip: string;
+  city: string;
+  region: string;
+  country: string;
+  loc: string;
+  postal: string;
+  timezone: string;
+}
+
 export function useInvestment() {
   const { user } = useAuth();
-  const [step, setStep] = useState<'amount' | 'payment'>('amount');
+  const [step, setStep] = useState<'amount' | 'payment' | 'confirmation'>('amount');
   const [amount, setAmount] = useState<number | ''>('');
   const [shares, setShares] = useState<number>(0);
   const [selectedAccount, setSelectedAccount] = useState<string | null>(null);
@@ -36,8 +46,10 @@ export function useInvestment() {
   const [accounts, setAccounts] = useState<PlaidAccount[]>([]);
   const [loadingAccounts, setLoadingAccounts] = useState(false);
   const [processingPayment, setProcessingPayment] = useState(false);
+  const [loadingLocation, setLoadingLocation] = useState(false);
+  const [locationInfo, setLocationInfo] = useState<LocationInfo | null>(null);
 
-  const fetchPropertyDetails = async (propertyId: string) => {
+  const fetchPropertyDetails = useCallback(async (propertyId: string) => {
     setPropertyDetails(prev => ({ ...prev, loading: true, error: null }));
     try {
       console.log(`Fetching property details for ID: ${propertyId}`);
@@ -77,6 +89,42 @@ export function useInvestment() {
         loading: false,
         error: "Failed to load property details. Please try again."
       });
+    }
+  }, []);
+
+  const fetchUserBalance = async () => {
+    if (!user?.token) return;
+    
+    try {
+      const response = await paymentApi.getUserBalance(user.token);
+      console.log("User balance:", response);
+    } catch (error) {
+      console.error("Failed to fetch user balance:", error);
+    }
+  };
+
+  const fetchTransactionHistory = async () => {
+    if (!user?.token) return;
+    
+    try {
+      const response = await paymentApi.getTransactionHistory(user.token);
+      console.log("Transaction history:", response);
+    } catch (error) {
+      console.error("Failed to fetch transaction history:", error);
+    }
+  };
+
+  const fetchLocationInfo = async () => {
+    setLoadingLocation(true);
+    try {
+      const response = await fetch('https://ipinfo.io/json');
+      const data = await response.json();
+      setLocationInfo(data);
+      console.log("Location info:", data);
+    } catch (error) {
+      console.error("Failed to fetch location info:", error);
+    } finally {
+      setLoadingLocation(false);
     }
   };
 
@@ -167,20 +215,33 @@ export function useInvestment() {
     setStep('payment');
   };
 
-  const processPayment = async (propertyId: string) => {
-    if (!user?.token) {
-      toast.error("You must be logged in to invest");
-      return;
-    }
-    
+  const proceedToConfirmation = () => {
     if (!selectedAccount) {
       toast.error("Please select a payment method");
       return;
     }
     
+    // Fetch additional data needed for confirmation
+    fetchUserBalance();
+    fetchLocationInfo();
+    
+    setStep('confirmation');
+  };
+
+  const processPayment = async (propertyId: string) => {
+    if (!user?.token) {
+      toast.error("You must be logged in to invest");
+      return false;
+    }
+    
+    if (!selectedAccount) {
+      toast.error("Please select a payment method");
+      return false;
+    }
+    
     if (!amount || amount <= 0) {
       toast.error("Please enter a valid investment amount");
-      return;
+      return false;
     }
     
     setProcessingPayment(true);
@@ -193,6 +254,10 @@ export function useInvestment() {
       
       if (response.result === 1) {
         toast.success("Investment successful! You will receive a confirmation shortly.");
+        
+        // Fetch updated transaction history after successful payment
+        fetchTransactionHistory();
+        
         return true;
       } else {
         toast.error(response.message || "Failed to process your investment");
@@ -226,6 +291,7 @@ export function useInvestment() {
       loading: false,
       error: null
     });
+    setLocationInfo(null);
   };
 
   return {
@@ -237,10 +303,13 @@ export function useInvestment() {
     accounts,
     loadingAccounts,
     processingPayment,
+    loadingLocation,
+    locationInfo,
     setSelectedAccount,
     handleAmountChange,
     fetchPropertyDetails,
     proceedToPayment,
+    proceedToConfirmation,
     processPayment,
     reset
   };
