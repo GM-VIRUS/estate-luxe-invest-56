@@ -1,9 +1,9 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, Mail, RefreshCw } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
-import { toast } from 'sonner';
+import { Mail, RefreshCw } from 'lucide-react';
+import VerificationCode from './VerificationCode';
+import { useEmailVerification } from '@/hooks/useEmailVerification';
 
 interface EmailVerificationProps {
   email: string;
@@ -11,11 +11,15 @@ interface EmailVerificationProps {
 }
 
 const EmailVerification = ({ email, onSuccess }: EmailVerificationProps) => {
-  const { verifyEmail } = useAuth();
-  const [otp, setOtp] = useState<string>('');
-  const [loading, setLoading] = useState(false);
-  const [timer, setTimer] = useState(60);
-  const [canResend, setCanResend] = useState(false);
+  const {
+    loading,
+    timer,
+    canResend,
+    verifyCode,
+    resendCode,
+    setTimer,
+    setCanResend
+  } = useEmailVerification({ email, onSuccess });
 
   useEffect(() => {
     let interval: number | undefined;
@@ -29,35 +33,7 @@ const EmailVerification = ({ email, onSuccess }: EmailVerificationProps) => {
     }
     
     return () => clearInterval(interval);
-  }, [timer, canResend]);
-
-  const handleVerify = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!otp || otp.length !== 6 || !/^\d+$/.test(otp)) {
-      toast.error('Please enter a valid 6-digit OTP');
-      return;
-    }
-    
-    setLoading(true);
-    
-    try {
-      const success = await verifyEmail(email, parseInt(otp, 10));
-      
-      if (success) {
-        toast.success('Email verified successfully!');
-        onSuccess();
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleResendOTP = () => {
-    toast.info('New verification code sent to your email');
-    setCanResend(false);
-    setTimer(60);
-  };
+  }, [timer, canResend, setTimer, setCanResend]);
 
   return (
     <div className="space-y-6">
@@ -72,36 +48,16 @@ const EmailVerification = ({ email, onSuccess }: EmailVerificationProps) => {
         </p>
       </div>
       
-      <form onSubmit={handleVerify} className="space-y-4">
+      <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
         <div className="space-y-2">
           <label htmlFor="otp" className="block text-sm font-medium">
             Verification Code
           </label>
-          <input
-            id="otp"
-            type="text"
-            value={otp}
-            onChange={(e) => setOtp(e.target.value.slice(0, 6))}
-            className="w-full h-11 rounded-md border bg-transparent px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-            placeholder="Enter 6-digit code"
-            maxLength={6}
-            autoComplete="one-time-code"
+          <VerificationCode
+            length={6}
+            onComplete={verifyCode}
           />
         </div>
-        
-        <Button 
-          type="submit" 
-          className="w-full bg-accent hover:bg-accent/90 transition-all rounded-md h-11 group"
-          disabled={loading}
-        >
-          {loading ? (
-            "Verifying..."
-          ) : (
-            <>
-              Verify Email <CheckCircle className="ml-2 h-4 w-4" />
-            </>
-          )}
-        </Button>
       </form>
       
       <div className="text-center">
@@ -112,7 +68,7 @@ const EmailVerification = ({ email, onSuccess }: EmailVerificationProps) => {
           type="button"
           variant="ghost"
           className="text-sm font-medium text-accent hover:text-accent/80"
-          onClick={handleResendOTP}
+          onClick={resendCode}
           disabled={!canResend}
         >
           <RefreshCw className="mr-2 h-4 w-4" />

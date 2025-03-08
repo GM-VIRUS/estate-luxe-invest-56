@@ -4,82 +4,71 @@ import { toast } from 'sonner';
 
 interface UseEmailVerificationProps {
   email: string;
-  onSuccess: () => void;
+  onSuccess?: () => void;
 }
 
 export const useEmailVerification = ({ email, onSuccess }: UseEmailVerificationProps) => {
-  const [otp, setOtp] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [timer, setTimer] = useState(60);
   const [canResend, setCanResend] = useState(false);
 
-  const verifyEmail = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!otp || otp.length !== 6 || !/^\d+$/.test(otp)) {
-      toast.error('Please enter a valid 6-digit OTP');
-      return;
+  const verifyCode = async (code: string) => {
+    if (!code || code.length !== 6 || !/^\d+$/.test(code)) {
+      toast.error('Please enter a valid 6-digit code');
+      return false;
     }
-    
+
     setLoading(true);
-    
     try {
-      // Replace with your API endpoint
-      const response = await fetch('YOUR_API_ENDPOINT/verify-email', {
+      // Here you'll integrate with your backend API
+      const response = await fetch('your-api-endpoint/verify', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, otp: parseInt(otp, 10) }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, code })
       });
 
       const data = await response.json();
       
-      if (response.ok) {
+      if (data.success) {
         toast.success('Email verified successfully!');
-        onSuccess();
+        onSuccess?.();
+        return true;
       } else {
         toast.error(data.message || 'Verification failed');
+        return false;
       }
     } catch (error) {
-      toast.error('Failed to verify email. Please try again.');
+      toast.error('Failed to verify code. Please try again.');
+      return false;
     } finally {
       setLoading(false);
     }
   };
 
-  const handleResendOTP = async () => {
+  const resendCode = async () => {
     try {
-      // Replace with your API endpoint
-      const response = await fetch('YOUR_API_ENDPOINT/resend-otp', {
+      // Here you'll integrate with your backend API
+      await fetch('your-api-endpoint/resend', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
       });
-
-      if (response.ok) {
-        toast.success('New verification code sent!');
-        setCanResend(false);
-        setTimer(60);
-      } else {
-        toast.error('Failed to send new code');
-      }
+      
+      toast.success('New verification code sent!');
+      setCanResend(false);
+      setTimer(60);
     } catch (error) {
-      toast.error('Failed to send new code');
+      toast.error('Failed to resend code. Please try again.');
     }
   };
 
   return {
-    otp,
-    setOtp,
     loading,
     timer,
-    setTimer,
     canResend,
-    setCanResend,
-    verifyEmail,
-    handleResendOTP,
+    verifyCode,
+    resendCode,
+    setTimer,
+    setCanResend
   };
 };
