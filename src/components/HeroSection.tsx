@@ -9,7 +9,7 @@ import MacbookScrollDemo from "./macbook-scroll-demo";
 const HeroSection = () => {
   return (
     <div className="relative overflow-hidden">
-      <div className="container mx-auto px-4 pt-16 lg:pt-20">
+      <div className="container mx-auto px-4 pt-6 lg:pt-10">
         <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-16">
           <div className="w-full lg:w-1/2">
             <div className="max-w-xl">
