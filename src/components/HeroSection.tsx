@@ -11,7 +11,7 @@ const HeroSection = () => {
     <div className="relative overflow-hidden">
       <div className="container mx-auto px-4 pt-6 lg:pt-10">
         <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-16">
-          <div className="w-full lg:w-1/2">
+          <div className="w-full lg:w-1/2 lg:pt-20">
             <div className="max-w-xl">
               <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl mb-6 bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70">
                 Invest in Real Estate Tokens <br className="hidden sm:inline" />
@@ -36,7 +36,7 @@ const HeroSection = () => {
             </div>
           </div>
           
-          <div className="w-full lg:w-1/2">
+          <div className="w-full lg:w-1/2 -mt-8">
             <MacbookScrollDemo />
           </div>
         </div>
