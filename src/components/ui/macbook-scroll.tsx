@@ -1,9 +1,11 @@
+
 "use client";
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { LaptopIcon, MicIcon, MoonIcon, SearchIcon, SunIcon, TableIcon, Volume, Volume1, Volume2, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, SkipBack, SkipForward } from "lucide-react";
+
 export const MacbookScroll = ({
   src,
   showGradient,
@@ -69,6 +71,7 @@ export const MacbookScroll = ({
       </div>
     </div>;
 };
+
 export const Lid = ({
   scaleX,
   scaleY,
@@ -109,11 +112,13 @@ export const Lid = ({
       </motion.div>
     </div>;
 };
+
 export const Trackpad = () => {
   return <div className="mx-auto my-1 h-32 w-[40%] rounded-xl" style={{
     boxShadow: "0px 0px 1px 1px #00000020 inset"
   }}></div>;
 };
+
 export const Keypad = () => {
   return <div className="mx-1 h-full rounded-md bg-[#050505] p-1">
       {/* First Row */}
@@ -177,34 +182,300 @@ export const Keypad = () => {
         </KBtn>
       </Row>
 
-      {/* Rest of keyboard rows */}
+      {/* Second row */}
       <Row>
-        {Array.from({
-        length: 14
-      }).map((_, i) => <KBtn key={i}></KBtn>)}
+        <KBtn>
+          <span className="block">~</span>
+          <span className="mt-1 block">`</span>
+        </KBtn>
+
+        <KBtn>
+          <span className="block">!</span>
+          <span className="block">1</span>
+        </KBtn>
+        <KBtn>
+          <span className="block">@</span>
+          <span className="block">2</span>
+        </KBtn>
+        <KBtn>
+          <span className="block">#</span>
+          <span className="block">3</span>
+        </KBtn>
+        <KBtn>
+          <span className="block">$</span>
+          <span className="block">4</span>
+        </KBtn>
+        <KBtn>
+          <span className="block">%</span>
+          <span className="block">5</span>
+        </KBtn>
+        <KBtn>
+          <span className="block">^</span>
+          <span className="block">6</span>
+        </KBtn>
+        <KBtn>
+          <span className="block">&</span>
+          <span className="block">7</span>
+        </KBtn>
+        <KBtn>
+          <span className="block">*</span>
+          <span className="block">8</span>
+        </KBtn>
+        <KBtn>
+          <span className="block">(</span>
+          <span className="block">9</span>
+        </KBtn>
+        <KBtn>
+          <span className="block">)</span>
+          <span className="block">0</span>
+        </KBtn>
+        <KBtn>
+          <span className="block">&mdash;</span>
+          <span className="block">_</span>
+        </KBtn>
+        <KBtn>
+          <span className="block">+</span>
+          <span className="block"> = </span>
+        </KBtn>
+        <KBtn
+          className="w-10 items-end justify-end pr-[4px] pb-[2px]"
+          childrenClassName="items-end"
+        >
+          delete
+        </KBtn>
       </Row>
+
+      {/* Third row */}
       <Row>
-        {Array.from({
-        length: 14
-      }).map((_, i) => <KBtn key={i}></KBtn>)}
+        <KBtn
+          className="w-10 items-end justify-start pb-[2px] pl-[4px]"
+          childrenClassName="items-start"
+        >
+          tab
+        </KBtn>
+        <KBtn>
+          <span className="block">Q</span>
+        </KBtn>
+
+        <KBtn>
+          <span className="block">W</span>
+        </KBtn>
+        <KBtn>
+          <span className="block">E</span>
+        </KBtn>
+        <KBtn>
+          <span className="block">R</span>
+        </KBtn>
+        <KBtn>
+          <span className="block">T</span>
+        </KBtn>
+        <KBtn>
+          <span className="block">Y</span>
+        </KBtn>
+        <KBtn>
+          <span className="block">U</span>
+        </KBtn>
+        <KBtn>
+          <span className="block">I</span>
+        </KBtn>
+        <KBtn>
+          <span className="block">O</span>
+        </KBtn>
+        <KBtn>
+          <span className="block">P</span>
+        </KBtn>
+        <KBtn>
+          <span className="block">&#123;</span>
+          <span className="block">&#91;</span>
+        </KBtn>
+        <KBtn>
+          <span className="block">&#125;</span>
+          <span className="block">&#93;</span>
+        </KBtn>
+        <KBtn>
+          <span className="block">|</span>
+          <span className="block">\</span>
+        </KBtn>
       </Row>
+
+      {/* Fourth Row */}
       <Row>
-        {Array.from({
-        length: 13
-      }).map((_, i) => <KBtn key={i}></KBtn>)}
+        <KBtn
+          className="w-[2.8rem] items-end justify-start pb-[2px] pl-[4px]"
+          childrenClassName="items-start"
+        >
+          caps lock
+        </KBtn>
+        <KBtn>
+          <span className="block">A</span>
+        </KBtn>
+
+        <KBtn>
+          <span className="block">S</span>
+        </KBtn>
+        <KBtn>
+          <span className="block">D</span>
+        </KBtn>
+        <KBtn>
+          <span className="block">F</span>
+        </KBtn>
+        <KBtn>
+          <span className="block">G</span>
+        </KBtn>
+        <KBtn>
+          <span className="block">H</span>
+        </KBtn>
+        <KBtn>
+          <span className="block">J</span>
+        </KBtn>
+        <KBtn>
+          <span className="block">K</span>
+        </KBtn>
+        <KBtn>
+          <span className="block">L</span>
+        </KBtn>
+        <KBtn>
+          <span className="block">:</span>
+          <span className="block">;</span>
+        </KBtn>
+        <KBtn>
+          <span className="block">"</span>
+          <span className="block">'</span>
+        </KBtn>
+        <KBtn
+          className="w-[2.85rem] items-end justify-end pr-[4px] pb-[2px]"
+          childrenClassName="items-end"
+        >
+          return
+        </KBtn>
       </Row>
+
+      {/* Fifth Row */}
       <Row>
-        {Array.from({
-        length: 12
-      }).map((_, i) => <KBtn key={i}></KBtn>)}
+        <KBtn
+          className="w-[3.65rem] items-end justify-start pb-[2px] pl-[4px]"
+          childrenClassName="items-start"
+        >
+          shift
+        </KBtn>
+        <KBtn>
+          <span className="block">Z</span>
+        </KBtn>
+        <KBtn>
+          <span className="block">X</span>
+        </KBtn>
+        <KBtn>
+          <span className="block">C</span>
+        </KBtn>
+        <KBtn>
+          <span className="block">V</span>
+        </KBtn>
+        <KBtn>
+          <span className="block">B</span>
+        </KBtn>
+        <KBtn>
+          <span className="block">N</span>
+        </KBtn>
+        <KBtn>
+          <span className="block">M</span>
+        </KBtn>
+        <KBtn>
+          <span className="block">&lt;</span>
+          <span className="block">,</span>
+        </KBtn>
+        <KBtn>
+          <span className="block">&gt;</span>
+          <span className="block">.</span>
+        </KBtn>
+        <KBtn>
+          <span className="block">?</span>
+          <span className="block">/</span>
+        </KBtn>
+        <KBtn
+          className="w-[3.65rem] items-end justify-end pr-[4px] pb-[2px]"
+          childrenClassName="items-end"
+        >
+          shift
+        </KBtn>
       </Row>
+
+      {/* sixth Row */}
       <Row>
-        {Array.from({
-        length: 8
-      }).map((_, i) => <KBtn key={i}></KBtn>)}
+        <KBtn className="" childrenClassName="h-full justify-between py-[4px]">
+          <div className="flex w-full justify-end pr-1">
+            <span className="block">fn</span>
+          </div>
+          <div className="flex w-full justify-start pl-1">
+            <LaptopIcon className="h-[6px] w-[6px]" />
+          </div>
+        </KBtn>
+        <KBtn className="" childrenClassName="h-full justify-between py-[4px]">
+          <div className="flex w-full justify-end pr-1">
+            <ChevronUp className="h-[6px] w-[6px]" />
+          </div>
+          <div className="flex w-full justify-start pl-1">
+            <span className="block">control</span>
+          </div>
+        </KBtn>
+        <KBtn className="" childrenClassName="h-full justify-between py-[4px]">
+          <div className="flex w-full justify-end pr-1">
+            <OptionKey className="h-[6px] w-[6px]" />
+          </div>
+          <div className="flex w-full justify-start pl-1">
+            <span className="block">option</span>
+          </div>
+        </KBtn>
+        <KBtn
+          className="w-8"
+          childrenClassName="h-full justify-between py-[4px]"
+        >
+          <div className="flex w-full justify-end pr-1">
+            <CommandKey className="h-[6px] w-[6px]" />
+          </div>
+          <div className="flex w-full justify-start pl-1">
+            <span className="block">command</span>
+          </div>
+        </KBtn>
+        <KBtn className="w-[8.2rem]"></KBtn>
+        <KBtn
+          className="w-8"
+          childrenClassName="h-full justify-between py-[4px]"
+        >
+          <div className="flex w-full justify-start pl-1">
+            <CommandKey className="h-[6px] w-[6px]" />
+          </div>
+          <div className="flex w-full justify-start pl-1">
+            <span className="block">command</span>
+          </div>
+        </KBtn>
+        <KBtn className="" childrenClassName="h-full justify-between py-[4px]">
+          <div className="flex w-full justify-start pl-1">
+            <OptionKey className="h-[6px] w-[6px]" />
+          </div>
+          <div className="flex w-full justify-start pl-1">
+            <span className="block">option</span>
+          </div>
+        </KBtn>
+        <div className="mt-[2px] flex h-6 w-[4.9rem] flex-col items-center justify-end rounded-[4px] p-[0.5px]">
+          <KBtn className="h-3 w-6">
+            <ChevronUp className="h-[6px] w-[6px]" />
+          </KBtn>
+          <div className="flex">
+            <KBtn className="h-3 w-6">
+              <ChevronLeft className="h-[6px] w-[6px]" />
+            </KBtn>
+            <KBtn className="h-3 w-6">
+              <ChevronDown className="h-[6px] w-[6px]" />
+            </KBtn>
+            <KBtn className="h-3 w-6">
+              <ChevronRight className="h-[6px] w-[6px]" />
+            </KBtn>
+          </div>
+        </div>
       </Row>
     </div>;
 };
+
 export const KBtn = ({
   className,
   children,
@@ -226,6 +497,7 @@ export const KBtn = ({
       </div>
     </div>;
 };
+
 export const Row = ({
   children
 }: {
@@ -233,12 +505,82 @@ export const Row = ({
 }) => {
   return <div className="mb-[2px] flex w-full shrink-0 gap-[2px]">{children}</div>;
 };
+
 export const SpeakerGrid = () => {
   return <div className="mt-2 flex h-40 gap-[2px] px-[0.5px]" style={{
     backgroundImage: "radial-gradient(circle, #08080A 0.5px, transparent 0.5px)",
     backgroundSize: "3px 3px"
   }}></div>;
 };
+
+export const OptionKey = ({ className }: { className: string }) => {
+  return (
+    <svg
+      fill="none"
+      version="1.1"
+      id="icon"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 32 32"
+      className={className}
+    >
+      <rect
+        stroke="currentColor"
+        strokeWidth={2}
+        x="18"
+        y="5"
+        width="10"
+        height="2"
+      />
+      <polygon
+        stroke="currentColor"
+        strokeWidth={2}
+        points="10.6,5 4,5 4,7 9.4,7 18.4,27 28,27 28,25 19.6,25 "
+      />
+      <rect
+        id="_Transparent_Rectangle_"
+        className="st0"
+        width="32"
+        height="32"
+        stroke="none"
+      />
+    </svg>
+  );
+};
+
+export const CommandKey = ({ className }: { className: string }) => {
+  return (
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 20 20"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+    >
+      <path
+        d="M5 7.5C5 6.67157 5.67157 6 6.5 6C7.32843 6 8 6.67157 8 7.5V12.5C8 13.3284 7.32843 14 6.5 14C5.67157 14 5 13.3284 5 12.5V7.5Z"
+        stroke="currentColor"
+        strokeWidth="1.5"
+      />
+      <path
+        d="M12 7.5C12 6.67157 12.6716 6 13.5 6C14.3284 6 15 6.67157 15 7.5V12.5C15 13.3284 14.3284 14 13.5 14C12.6716 14 12 13.3284 12 12.5V7.5Z"
+        stroke="currentColor"
+        strokeWidth="1.5"
+      />
+      <path
+        d="M6.5 8C6.5 8 9 8 10 8C11 8 13.5 8 13.5 8"
+        stroke="currentColor"
+        strokeWidth="1.5"
+      />
+      <path
+        d="M6.5 12C6.5 12 9 12 10 12C11 12 13.5 12 13.5 12"
+        stroke="currentColor"
+        strokeWidth="1.5"
+      />
+    </svg>
+  );
+};
+
 const AceternityLogo = () => {
   return <svg width="66" height="65" viewBox="0 0 66 65" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 text-white">
       <path d="M8 8.05571C8 8.05571 54.9009 18.1782 57.8687 30.062C60.8365 41.9458 9.05432 57.4696 9.05432 57.4696" stroke="currentColor" strokeWidth="15" strokeMiterlimit="3.86874" strokeLinecap="round" />
