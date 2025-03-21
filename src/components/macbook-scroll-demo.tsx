@@ -14,7 +14,7 @@ export default function MacbookScrollDemo() {
         badge={
           <Badge className="h-10 w-10 transform -rotate-12" />
         }
-        src="/placeholder.svg"
+        src="/lovable-uploads/9d5781ab-38b3-48a7-b6e0-ee4b626fcad7.png"
         showGradient={false}
       />
     </div>
