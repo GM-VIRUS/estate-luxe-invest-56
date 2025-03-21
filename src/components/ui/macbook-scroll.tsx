@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
@@ -216,11 +217,11 @@ export const KBtn = ({
   childrenClassName?: string;
   backlit?: boolean;
 }) => {
-  return <div className={cn("rounded-[4px] p-[0.5px]", backlit && "bg-white/[0.2] shadow-xl shadow-white")}>
+  return <div className={cn("rounded-[4px] p-[0.5px]", backlit && "bg-white/[0.2] shadow-xl shadow-white/[0.15]")}>
       <div className={cn("flex h-6 w-6 items-center justify-center rounded-[3.5px] bg-[#0A090D]", className)} style={{
       boxShadow: "0px -0.5px 2px 0 #0D0D0F inset, -0.5px 0px 2px 0 #0D0D0F inset"
     }}>
-        <div className={cn("flex w-full flex-col items-center justify-center text-[5px] text-neutral-200", childrenClassName, backlit && "text-white")}>
+        <div className={cn("flex w-full flex-col items-center justify-center text-[5px] text-neutral-200", childrenClassName, backlit && "text-white/90")}>
           {children}
         </div>
       </div>
@@ -235,7 +236,7 @@ export const Row = ({
 };
 export const SpeakerGrid = () => {
   return <div className="mt-2 flex h-40 gap-[2px] px-[0.5px]" style={{
-    backgroundImage: "radial-gradient(circle, #08080A 0.5px, transparent 0.5px)",
+    backgroundImage: "radial-gradient(circle, #ffffff20 0.5px, transparent 0.5px)",
     backgroundSize: "3px 3px"
   }}></div>;
 };
